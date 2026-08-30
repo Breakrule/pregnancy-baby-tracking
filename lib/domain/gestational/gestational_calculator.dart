@@ -16,6 +16,17 @@ class GestationalAge {
   int get totalDays => weeks * 7 + days;
 
   String get label => 'Week $weeks, Day $days';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GestationalAge && weeks == other.weeks && days == other.days;
+
+  @override
+  int get hashCode => Object.hash(weeks, days);
+
+  @override
+  String toString() => label;
 }
 
 class GestationalCalculator {
@@ -43,6 +54,12 @@ class GestationalCalculator {
 
   static int daysUntilDue(DateTime dueDate, DateTime on) =>
       _dateOnly(dueDate).difference(_dateOnly(on)).inDays;
+
+  /// Raw signed day count since LMP (negative before LMP). Consumers that
+  /// need the unclamped value (e.g. validation, expected-gain math) use this;
+  /// display code uses [gestationalAgeAt].
+  static int daysSinceLmp(DateTime lmp, DateTime on) =>
+      _dateOnly(on).difference(_dateOnly(lmp)).inDays;
 
   static DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 }

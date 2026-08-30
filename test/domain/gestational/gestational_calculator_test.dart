@@ -58,9 +58,18 @@ void main() {
       expect(ga.weeks, 42);
       expect(ga.days, 0);
     });
+
+    test('date before LMP clamps to 0w0d', () {
+      final ga = GestationalCalculator.gestationalAgeAt(
+        lmp,
+        lmp.subtract(const Duration(days: 5)),
+      );
+      expect(ga.weeks, 0);
+      expect(ga.days, 0);
+    });
   });
 
-  group('trimesterAt', () {
+  group('trimesterOf', () {
     final lmp = DateTime(2026, 1, 1);
 
     GestationalAge gaAt(int days) => GestationalCalculator.gestationalAgeAt(
@@ -104,6 +113,49 @@ void main() {
         ),
         -3,
       );
+    });
+
+    test('zero on the due date', () {
+      final due = DateTime(2026, 10, 8);
+      expect(GestationalCalculator.daysUntilDue(due, due), 0);
+    });
+  });
+
+  group('daysSinceLmp', () {
+    final lmp = DateTime(2026, 1, 1);
+
+    test('returns 66 for day 66', () {
+      expect(GestationalCalculator.daysSinceLmp(lmp, DateTime(2026, 3, 8)), 66);
+    });
+
+    test('returns negative value for date before LMP', () {
+      expect(
+        GestationalCalculator.daysSinceLmp(
+          lmp,
+          lmp.subtract(const Duration(days: 5)),
+        ),
+        -5,
+      );
+    });
+  });
+
+  group('GestationalAge equality', () {
+    test('equal instances are ==', () {
+      const a = GestationalAge(weeks: 9, days: 3);
+      const b = GestationalAge(weeks: 9, days: 3);
+      expect(a, equals(b));
+    });
+
+    test('equal instances have same hashCode', () {
+      const a = GestationalAge(weeks: 9, days: 3);
+      const b = GestationalAge(weeks: 9, days: 3);
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('different instances are not ==', () {
+      const a = GestationalAge(weeks: 9, days: 3);
+      const b = GestationalAge(weeks: 9, days: 4);
+      expect(a, isNot(equals(b)));
     });
   });
 }
