@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../features/more/more_screen.dart';
 import '../features/pregnancy/home/home_screen.dart';
 import '../features/pregnancy/learn/learn_screen.dart';
+import '../features/pregnancy/learn/week_detail_screen.dart';
 import '../features/pregnancy/setup/setup_wizard_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
@@ -79,6 +80,15 @@ GoRouter buildRouter({
               GoRoute(
                 path: '/learn',
                 builder: (context, state) => const LearnScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'week/:w',
+                    builder: (context, state) {
+                      final week = int.parse(state.pathParameters['w']!);
+                      return WeekDetailScreen(week: week);
+                    },
+                  ),
+                ],
               ),
             ],
           ),

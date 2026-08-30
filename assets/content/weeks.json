@@ -1,0 +1,256 @@
+{
+  "weeks": [
+    {
+      "week": 3,
+      "size_object": "poppy seed",
+      "size_cm": 0.1,
+      "development": [
+        "Fertilization has happened; the zygote is dividing as it travels to the uterus.",
+        "Implantation begins late this week."
+      ],
+      "body_changes": [
+        "You may feel nothing at all yet — that is normal.",
+        "Some women notice mild cramping or light spotting at implantation."
+      ],
+      "tips": [
+        "Start (or continue) a prenatal vitamin with 400–800 mcg folic acid.",
+        "Avoid alcohol and smoking."
+      ],
+      "checklist": ["Start prenatal vitamins"]
+    },
+    {
+      "week": 4,
+      "size_object": "poppy seed",
+      "size_cm": 0.2,
+      "development": [
+        "The embryo implants into the uterine lining.",
+        "hCG hormone begins rising — this is what pregnancy tests detect."
+      ],
+      "body_changes": [
+        "Missed period.",
+        "Mild fatigue or breast tenderness may begin."
+      ],
+      "tips": [
+        "Take a home pregnancy test if you haven't.",
+        "Book your first prenatal appointment (usually weeks 8–10)."
+      ],
+      "checklist": ["Confirm pregnancy with a test", "Book first OB visit"]
+    },
+    {
+      "week": 5,
+      "size_object": "sesame seed",
+      "size_cm": 0.2,
+      "development": [
+        "The neural tube (future brain and spine) is forming.",
+        "The heart begins to beat."
+      ],
+      "body_changes": [
+        "Nausea may start.",
+        "Frequent urination and fatigue are common."
+      ],
+      "tips": [
+        "Eat small, frequent meals if nauseated.",
+        "Keep hydrating."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 6,
+      "size_object": "lentil",
+      "size_cm": 0.5,
+      "development": [
+        "Heartbeat may be visible on ultrasound (~110 bpm).",
+        "Early facial features and arm/leg buds appear."
+      ],
+      "body_changes": [
+        "Morning sickness often peaks in the coming weeks.",
+        "Food aversions or strong smells sensitivity."
+      ],
+      "tips": [
+        "Ginger or plain crackers can ease nausea.",
+        "Rest when you can — fatigue is real."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 7,
+      "size_object": "blueberry",
+      "size_cm": 1.0,
+      "development": [
+        "Brain is growing rapidly.",
+        "Hands and feet are forming."
+      ],
+      "body_changes": [
+        "Nausea may still be strong.",
+        "Breasts may feel fuller and tender."
+      ],
+      "tips": [
+        "A comfortable bra helps.",
+        "Tell your provider about any medication you take."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 8,
+      "size_object": "raspberry",
+      "size_cm": 1.6,
+      "development": [
+        "Fingers are forming; the embryo begins small movements.",
+        "Major organs are in place."
+      ],
+      "body_changes": [
+        "Bloating and mild cramping can occur.",
+        "Mood swings are common."
+      ],
+      "tips": [
+        "First prenatal visit usually happens around now.",
+        "Write down questions for your provider."
+      ],
+      "checklist": ["Attend first prenatal visit"]
+    },
+    {
+      "week": 9,
+      "size_object": "cherry",
+      "size_cm": 2.3,
+      "development": [
+        "Now officially called a fetus.",
+        "Muscles are developing; small movements continue."
+      ],
+      "body_changes": [
+        "Nausea often near its peak.",
+        "Waistband may start to feel tight."
+      ],
+      "tips": [
+        "Iron-rich foods help with fatigue.",
+        "Gentle walks are great."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 10,
+      "size_object": "strawberry",
+      "size_cm": 3.1,
+      "development": [
+        "Bones and cartilage are forming.",
+        "The fetus can kick and swallow."
+      ],
+      "body_changes": [
+        "Some women feel slightly better this week.",
+        "Round-ligament twinges possible."
+      ],
+      "tips": [
+        "Ask about NIPT/cell-free DNA screening (available from week 10).",
+        "Keep taking prenatal vitamins."
+      ],
+      "checklist": ["Discuss screening options with provider"]
+    },
+    {
+      "week": 11,
+      "size_object": "fig",
+      "size_cm": 4.1,
+      "development": [
+        "The fetus can open and close its fists.",
+        "External genitalia start differentiating."
+      ],
+      "body_changes": [
+        "Nausea often begins to ease soon.",
+        "Skin changes may appear."
+      ],
+      "tips": [
+        "Stay consistent with hydration.",
+        "Start thinking about first-trimester screening (weeks 11–13)."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 12,
+      "size_object": "lime",
+      "size_cm": 5.4,
+      "development": [
+        "Reflexes are developing.",
+        "Heartbeat can sometimes be heard with a Doppler."
+      ],
+      "body_changes": [
+        "End of trimester 1 is near — many symptoms improve.",
+        "Energy may start returning."
+      ],
+      "tips": [
+        "First-trimester screening (nuchal translucency) is typically done weeks 11–13.",
+        "Share the news if you'd like to!"
+      ],
+      "checklist": ["First-trimester screening if chosen"]
+    },
+    {
+      "week": 13,
+      "size_object": "peach",
+      "size_cm": 7.4,
+      "development": [
+        "Unique fingerprints are forming.",
+        "Vocal cords are developing."
+      ],
+      "body_changes": [
+        "Trimester 2 begins next week.",
+        "Bump may start showing slightly."
+      ],
+      "tips": [
+        "Balanced meals with protein and fiber help energy.",
+        "Begin a gentle exercise routine if not already."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 14,
+      "size_object": "lemon",
+      "size_cm": 8.7,
+      "development": [
+        "The fetus can make facial expressions.",
+        "Fine hair (lanugo) covers the body for warmth."
+      ],
+      "body_changes": [
+        "Often called the 'honeymoon' phase — energy returns.",
+        "Round-ligament pain may appear as the uterus grows."
+      ],
+      "tips": [
+        "Change positions slowly to ease round-ligament pain.",
+        "Plan the anatomy scan (~week 20) with your provider."
+      ],
+      "checklist": ["Schedule anatomy scan (~week 20)"]
+    },
+    {
+      "week": 15,
+      "size_object": "apple",
+      "size_cm": 10.1,
+      "development": [
+        "Senses are developing; light sensitivity begins.",
+        "The skeleton is hardening from cartilage to bone."
+      ],
+      "body_changes": [
+        "Nasal stuffiness can occur.",
+        "Appetite often increases."
+      ],
+      "tips": [
+        "Calcium-rich foods support bone development.",
+        "Start looking into prenatal classes if interested."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 16,
+      "size_object": "avocado",
+      "size_cm": 11.6,
+      "development": [
+        "Ears are in position; hearing begins to develop.",
+        "The umbilical cord is fully formed."
+      ],
+      "body_changes": [
+        "You may feel more comfortable than in trimester 1.",
+        "First flutters of movement may come soon (often weeks 16–20)."
+      ],
+      "tips": [
+        "Note any first movements for your records.",
+        "Keep up regular check-ups."
+      ],
+      "checklist": []
+    }
+  ]
+}
