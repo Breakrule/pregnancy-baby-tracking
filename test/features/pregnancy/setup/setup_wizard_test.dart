@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nurture/core/router.dart';
 import 'package:nurture/data/db/app_database.dart';
+import 'package:nurture/data/db/tables.dart';
 import 'package:nurture/data/providers.dart';
 import 'package:nurture/features/shared/app_lock/auth_service.dart';
 
@@ -28,6 +29,44 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Welcome to Nurture'), findsOneWidget);
+  });
+
+  testWidgets('pregnancy exists: /setup redirects to home', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db
+        .into(db.pregnancies)
+        .insert(
+          PregnanciesCompanion.insert(
+            lmpDate: DateTime.utc(2026, 1, 1),
+            dueDate: DateTime.utc(2026, 10, 8),
+            conceptionSource: ConceptionSource.lmp,
+            prePregnancyWeightKg: 62,
+            heightCm: 165,
+          ),
+        );
+
+    final router = buildRouter(hasPregnancy: () async => true);
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          authServiceProvider.overrideWithValue(
+            AlwaysAllowAuthService(available: false),
+          ),
+        ],
+        child: RouterApp(router: router),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    router.go('/setup');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome to Nurture'), findsNothing);
+    expect(find.text('Home (Phase 0)'), findsOneWidget);
   });
 }
 

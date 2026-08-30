@@ -42,6 +42,7 @@ class SetupFormState {
     ConceptionSource.ultrasound => referenceDate,
   };
 
+  /// [today] should be a local-time date (DateTime.now()); comparisons are date-only.
   String? validateReferenceDate(DateTime? value, {required DateTime today}) {
     if (value == null) return 'Choose a date';
     final dateOnly = DateTime(value.year, value.month, value.day);

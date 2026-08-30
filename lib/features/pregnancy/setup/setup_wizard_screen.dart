@@ -17,6 +17,7 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
   final _form = SetupFormState();
   final _pageController = PageController();
   int _currentStep = 0;
+  bool _submitting = false;
 
   // Controllers for text fields that need manual parsing.
   late final TextEditingController _weightCtrl;
@@ -116,34 +117,40 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
   }
 
   Future<void> _finish() async {
-    // Sync optional text fields into form state.
-    _form.clinicName = _clinicNameCtrl.text.trim().isEmpty
-        ? null
-        : _clinicNameCtrl.text.trim();
-    _form.clinicPhone = _clinicPhoneCtrl.text.trim().isEmpty
-        ? null
-        : _clinicPhoneCtrl.text.trim();
-    _form.hospitalName = _hospitalNameCtrl.text.trim().isEmpty
-        ? null
-        : _hospitalNameCtrl.text.trim();
-    _form.hospitalAddress = _hospitalAddressCtrl.text.trim().isEmpty
-        ? null
-        : _hospitalAddressCtrl.text.trim();
+    if (_submitting) return;
+    setState(() => _submitting = true);
+    try {
+      // Sync optional text fields into form state.
+      _form.clinicName = _clinicNameCtrl.text.trim().isEmpty
+          ? null
+          : _clinicNameCtrl.text.trim();
+      _form.clinicPhone = _clinicPhoneCtrl.text.trim().isEmpty
+          ? null
+          : _clinicPhoneCtrl.text.trim();
+      _form.hospitalName = _hospitalNameCtrl.text.trim().isEmpty
+          ? null
+          : _hospitalNameCtrl.text.trim();
+      _form.hospitalAddress = _hospitalAddressCtrl.text.trim().isEmpty
+          ? null
+          : _hospitalAddressCtrl.text.trim();
 
-    final repo = ref.read(pregnancyRepositoryProvider);
-    await repo.create(
-      lmpDate: utcDateOnly(_form.lmpDate!),
-      dueDate: utcDateOnly(_form.dueDate!),
-      source: _form.source,
-      prePregnancyWeightKg: _form.prePregnancyWeightKg!,
-      heightCm: _form.heightCm!,
-      bloodType: _form.bloodType == 'Unknown' ? null : _form.bloodType,
-      clinicName: _form.clinicName,
-      clinicPhone: _form.clinicPhone,
-      hospitalName: _form.hospitalName,
-      hospitalAddress: _form.hospitalAddress,
-    );
-    if (mounted) context.go('/home');
+      final repo = ref.read(pregnancyRepositoryProvider);
+      await repo.create(
+        lmpDate: utcDateOnly(_form.lmpDate!),
+        dueDate: utcDateOnly(_form.dueDate!),
+        source: _form.source,
+        prePregnancyWeightKg: _form.prePregnancyWeightKg!,
+        heightCm: _form.heightCm!,
+        bloodType: _form.bloodType == 'Unknown' ? null : _form.bloodType,
+        clinicName: _form.clinicName,
+        clinicPhone: _form.clinicPhone,
+        hospitalName: _form.hospitalName,
+        hospitalAddress: _form.hospitalAddress,
+      );
+      if (mounted) context.go('/home');
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   static DateTime utcDateOnly(DateTime d) =>
@@ -172,7 +179,7 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: FilledButton(
-            onPressed: _next,
+            onPressed: (_currentStep == 2 && _submitting) ? null : _next,
             child: Text(_currentStep == 2 ? 'Start tracking' : 'Next'),
           ),
         ),

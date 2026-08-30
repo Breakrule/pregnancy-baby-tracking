@@ -16,7 +16,9 @@ import '../features/shared/settings/settings_screen.dart';
 /// provider to rebuild and recreate the router on every emission).
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(Stream<dynamic> source) {
-    _sub = source.listen((_) => notifyListeners());
+    // Drift watch streams emit the current value immediately on subscribe;
+    // skip(1) avoids a redundant redirect re-evaluation at construction.
+    _sub = source.skip(1).listen((_) => notifyListeners());
   }
 
   late final StreamSubscription<Object?> _sub;

@@ -50,6 +50,7 @@ class PregnancyRepository {
     )..where((t) => t.id.equals(companion.id.value))).write(companion);
   }
 
+  /// Existence check only (any row); not a 'latest valid record' query.
   /// Returns true if at least one pregnancy record exists.
   /// Uses a direct query (not a stream) so it resolves immediately,
   /// which is important for router redirect guards.
