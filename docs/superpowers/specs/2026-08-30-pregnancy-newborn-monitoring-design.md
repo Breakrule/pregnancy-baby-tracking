@@ -40,6 +40,8 @@ The app has two lifecycle modes around a single shared record:
 
 `AppMode` is derived state: no birth record → Pregnancy Mode; birth record exists → Baby Mode. The router redirects home based on mode. No duplicated app shell.
 
+**Gestational definitions:** gestational age is counted in completed weeks + days from the reference date. If due date comes from LMP, gestational age = days since LMP; if from ultrasound dating, LMP is back-derived as due date minus 280 days and the same math applies. Trimester 1 = week 0 through 13+6, trimester 2 = week 14 through 27+6, trimester 3 = week 28 onward. Due date is editable at any time; all derived displays recompute.
+
 ## 4. Feature Set
 
 ### 4.1 Pregnancy — Basic
@@ -94,7 +96,7 @@ The app has two lifecycle modes around a single shared record:
 | ID | Feature | Detail |
 |---|---|---|
 | B13 | Adjusted age | Corrected-age display for preterm babies, used in milestone guidance |
-| B14 | Percentile velocity alerts | Warns on major percentile line crossings |
+| B14 | Percentile velocity alerts | Warns when two consecutive measurements cross two or more major WHO percentile bands (3rd, 15th, 50th, 85th, 97th) in the same direction |
 | B15 | Pumping log | Separate from direct feeding totals |
 | B16 | Health log | Temperature, vitamin D / meds, symptoms |
 | B17 | Care guides | Sleep safety / SIDS prevention, feeding guides, common-illness reference |
@@ -157,7 +159,7 @@ assets/content/
 ### Key mechanisms
 
 1. **Mode state machine** — `appModeProvider` derived from birth-record existence; router redirects accordingly.
-2. **Alert rules engine** — pure functions evaluated on every save: BP ≥140/90 (warning) / ≥160/110 (urgent), glucose out of target per context, red-flag symptoms, baby fever ≥38°C <3 months, kick-count deviation from the user's pattern. Each rule returns an `Alert(severity, message, action)`. Thresholds and copy live in `red_flags.json` so they're tunable without code changes. Fully unit-testable.
+2. **Alert rules engine** — pure functions evaluated on every save: BP ≥140/90 (warning) / ≥160/110 (urgent), glucose out of target per context, red-flag symptoms, baby fever ≥38°C <3 months, and kick-count deviation. Kick-count deviation is defined as: time-to-10 exceeds 1.5× the rolling average of the last 5 completed sessions, or fewer than 10 kicks felt within 2 hours. Each rule returns an `Alert(severity, message, action)`. Thresholds and copy live in `red_flags.json` so they're tunable without code changes. Fully unit-testable.
 3. **WHO percentile computation** — WHO LMS tables bundled as JSON; z-score = `((X/M)^L − 1)/(L·S)`, converted to percentile via the normal CDF. Pure Dart, tested against published WHO reference values.
 4. **Reminder engine** — `flutter_local_notifications` + timezone: recurring (medications, daily kick-count nudge) and one-shot (appointments, vaccines). All local; no push service.
 5. **Reports** — `pdf` package builds visit summaries / growth reports; `share_plus` hands them to any app.
