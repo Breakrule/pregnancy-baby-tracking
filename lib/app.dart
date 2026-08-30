@@ -4,11 +4,22 @@ import 'package:go_router/go_router.dart';
 
 import 'core/router.dart';
 import 'core/theme.dart';
+import 'data/providers.dart';
 import 'features/shared/app_lock/lock_gate.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final router = buildRouter();
+  // Create a refresh notifier that listens to pregnancy changes.
+  // We read the repo directly (not via watch) to avoid making this provider
+  // rebuild when the stream emits. The stream subscription is cleaned up
+  // via ref.onDispose below.
+  final repo = ref.read(pregnancyRepositoryProvider);
+  final refresh = RouterRefreshNotifier(repo.watchActive());
+  final router = buildRouter(
+    hasPregnancy: () => repo.hasActive(),
+    refreshListenable: refresh,
+  );
   ref.onDispose(router.dispose);
+  ref.onDispose(refresh.dispose);
   return router;
 });
 

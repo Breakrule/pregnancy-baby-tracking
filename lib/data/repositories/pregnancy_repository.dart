@@ -50,6 +50,14 @@ class PregnancyRepository {
     )..where((t) => t.id.equals(companion.id.value))).write(companion);
   }
 
+  /// Returns true if at least one pregnancy record exists.
+  /// Uses a direct query (not a stream) so it resolves immediately,
+  /// which is important for router redirect guards.
+  Future<bool> hasActive() async {
+    final count = await (_db.select(_db.pregnancies)..limit(1)).get();
+    return count.isNotEmpty;
+  }
+
   /// Emits the most recent pregnancy record, or null.
   Stream<Pregnancy?> watchActive() {
     final query = _db.select(_db.pregnancies)

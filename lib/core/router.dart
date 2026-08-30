@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,12 +10,43 @@ import '../features/pregnancy/setup/setup_wizard_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+/// Notifies GoRouter to re-evaluate redirects when the active pregnancy
+/// changes (e.g. after setup completes). Subscribes to a stream directly
+/// rather than using ref.listen inside a Provider (which would cause the
+/// provider to rebuild and recreate the router on every emission).
+class RouterRefreshNotifier extends ChangeNotifier {
+  RouterRefreshNotifier(Stream<dynamic> source) {
+    _sub = source.listen((_) => notifyListeners());
+  }
 
-GoRouter buildRouter() {
+  late final StreamSubscription<Object?> _sub;
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+}
+
+GoRouter buildRouter({
+  required Future<bool> Function() hasPregnancy,
+  ChangeNotifier? refreshListenable,
+}) {
+  // Navigator key is created per-call so multiple GoRouter instances in tests
+  // don't collide via a shared module-level GlobalKey.
+  final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
   return GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/home',
+    refreshListenable: refreshListenable,
+    redirect: (context, state) async {
+      final onSetup = state.matchedLocation == '/setup';
+      final setupDone = await hasPregnancy();
+      if (!setupDone && !onSetup) return '/setup';
+      if (setupDone && onSetup) return '/home';
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/setup',
