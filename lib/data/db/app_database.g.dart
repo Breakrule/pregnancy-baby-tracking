@@ -2460,7 +2460,7 @@ class $MedLogsTable extends MedLogs with TableInfo<$MedLogsTable, MedLog> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES medications (id)',
+      'REFERENCES medications (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _takenAtMeta = const VerificationMeta(
@@ -3159,6 +3159,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     medLogs,
     appointments,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'medications',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('med_logs', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$PregnanciesTableCreateCompanionBuilder =

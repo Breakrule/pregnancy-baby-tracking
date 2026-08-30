@@ -73,7 +73,8 @@ class Medications extends Table {
 
 class MedLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get medicationId => integer().references(Medications, #id)();
+  IntColumn get medicationId =>
+      integer().references(Medications, #id, onDelete: KeyAction.cascade)();
   DateTimeColumn get takenAt => dateTime()();
 }
 
