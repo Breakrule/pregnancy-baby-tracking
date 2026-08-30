@@ -6,6 +6,7 @@ import '../features/pregnancy/home/home_screen.dart';
 import '../features/pregnancy/learn/learn_screen.dart';
 import '../features/pregnancy/setup/setup_wizard_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
+import '../features/shared/settings/settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -51,6 +52,12 @@ GoRouter buildRouter() {
               GoRoute(
                 path: '/more',
                 builder: (context, state) => const MoreScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'settings',
+                    builder: (context, state) => const SettingsScreen(),
+                  ),
+                ],
               ),
             ],
           ),
