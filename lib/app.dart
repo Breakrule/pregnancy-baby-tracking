@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/router.dart';
 import 'core/theme.dart';
+import 'features/shared/app_lock/lock_gate.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = buildRouter();
@@ -16,11 +17,13 @@ class NurtureApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp.router(
-      title: 'Nurture',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.pregnancy(),
-      routerConfig: ref.watch(routerProvider),
+    return LockGate(
+      child: MaterialApp.router(
+        title: 'Nurture',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.pregnancy(),
+        routerConfig: ref.watch(routerProvider),
+      ),
     );
   }
 }
