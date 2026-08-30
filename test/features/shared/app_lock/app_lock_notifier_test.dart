@@ -90,4 +90,18 @@ void main() {
     container.read(appLockNotifierProvider.notifier).lock();
     expect(container.read(appLockNotifierProvider).isLocked, isTrue);
   });
+
+  test('biometric unlock fails when unavailable', () async {
+    final container = makeContainer(
+      auth: AlwaysAllowAuthService(available: false),
+    );
+    addTearDown(container.dispose);
+    await enablePin(container, '1234');
+    await container.read(appLockNotifierProvider.notifier).syncFromSettings();
+    final ok = await container
+        .read(appLockNotifierProvider.notifier)
+        .unlockWithBiometric();
+    expect(ok, isFalse);
+    expect(container.read(appLockNotifierProvider).isLocked, isTrue);
+  });
 }

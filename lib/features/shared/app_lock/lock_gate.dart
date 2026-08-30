@@ -42,6 +42,9 @@ class _LockGateState extends ConsumerState<LockGate>
   @override
   Widget build(BuildContext context) {
     final lockState = ref.watch(appLockNotifierProvider);
+    if (!lockState.synced) {
+      return const SizedBox.shrink();
+    }
     return lockState.isLocked ? const LockScreen() : widget.child;
   }
 }

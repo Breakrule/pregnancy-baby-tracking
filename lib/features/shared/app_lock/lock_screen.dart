@@ -13,6 +13,7 @@ class LockScreen extends ConsumerStatefulWidget {
 class _LockScreenState extends ConsumerState<LockScreen> {
   String _pin = '';
   String _error = '';
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -21,16 +22,30 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   }
 
   Future<void> _tryBiometric() async {
-    await ref.read(appLockNotifierProvider.notifier).unlockWithBiometric();
+    if (_submitting) return;
+    _submitting = true;
+    try {
+      await ref.read(appLockNotifierProvider.notifier).unlockWithBiometric();
+    } finally {
+      if (mounted) _submitting = false;
+    }
   }
 
   Future<void> _submit() async {
-    final ok = await ref.read(appLockNotifierProvider.notifier).verifyPin(_pin);
-    if (!ok && mounted) {
-      setState(() {
-        _error = 'Incorrect PIN';
-        _pin = '';
-      });
+    if (_submitting) return;
+    _submitting = true;
+    try {
+      final ok = await ref
+          .read(appLockNotifierProvider.notifier)
+          .verifyPin(_pin);
+      if (!ok && mounted) {
+        setState(() {
+          _error = 'Incorrect PIN';
+          _pin = '';
+        });
+      }
+    } finally {
+      if (mounted) _submitting = false;
     }
   }
 

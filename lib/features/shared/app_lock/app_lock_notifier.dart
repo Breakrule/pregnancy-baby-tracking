@@ -5,17 +5,25 @@ import '../../../data/repositories/settings_repository.dart';
 import 'pin_hash.dart';
 
 class AppLockState {
-  const AppLockState({required this.isLocked, required this.lockEnabled});
+  const AppLockState({
+    required this.isLocked,
+    required this.lockEnabled,
+    this.synced = true,
+  });
 
-  const AppLockState.disabled() : this(isLocked: false, lockEnabled: false);
+  /// Before settings are read once at startup we are NOT synced; the gate
+  /// must not show protected content until then.
+  const AppLockState.booting()
+    : this(isLocked: true, lockEnabled: false, synced: false);
 
   final bool isLocked;
   final bool lockEnabled;
+  final bool synced;
 }
 
 class AppLockNotifier extends Notifier<AppLockState> {
   @override
-  AppLockState build() => const AppLockState.disabled();
+  AppLockState build() => const AppLockState.booting();
 
   SettingsRepository get _settings => ref.read(settingsRepositoryProvider);
 

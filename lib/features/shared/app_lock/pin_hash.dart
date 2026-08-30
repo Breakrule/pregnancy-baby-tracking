@@ -3,6 +3,10 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
+/// Salted SHA-256 is intentional for this threat model: a 6-digit PIN has
+/// 1M candidates, so an attacker with access to the app's sandbox could
+/// brute-force any hash offline; the salt only defeats rainbow tables.
+/// Upgrade path if ever needed: swap [hash] for argon2id, API unchanged.
 class PinHash {
   PinHash._();
 
