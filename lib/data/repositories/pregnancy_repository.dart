@@ -8,6 +8,7 @@ class PregnancyRepository {
 
   final AppDatabase _db;
 
+  /// Inserts a new pregnancy record. Callers must pass UTC DateTimes.
   Future<int> create({
     required DateTime lmpDate,
     required DateTime dueDate,
@@ -38,8 +39,13 @@ class PregnancyRepository {
         );
   }
 
-  Future<int> update(PregnanciesCompanion companion) async {
-    return (_db.update(
+  /// Partial update of the pregnancy row identified by [companion]'s id.
+  /// Callers must pass UTC DateTimes for any date fields they set.
+  Future<void> update(PregnanciesCompanion companion) async {
+    if (!companion.id.present) {
+      throw ArgumentError('PregnanciesCompanion.id must be present for update');
+    }
+    await (_db.update(
       _db.pregnancies,
     )..where((t) => t.id.equals(companion.id.value))).write(companion);
   }

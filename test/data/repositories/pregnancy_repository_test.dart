@@ -49,6 +49,17 @@ void main() {
       updated.dueDate.isAtSameMomentAs(DateTime.utc(2026, 10, 15)),
       isTrue,
     );
+    expect(updated.lmpDate.isAtSameMomentAs(DateTime.utc(2026, 1, 1)), isTrue);
+    expect(updated.prePregnancyWeightKg, 62);
+  });
+
+  test('update without id throws ArgumentError', () async {
+    expect(
+      () => repo.update(
+        PregnanciesCompanion(dueDate: Value(DateTime.utc(2026, 10, 15))),
+      ),
+      throwsArgumentError,
+    );
   });
 
   test('watchActive emits null when no record exists', () async {
