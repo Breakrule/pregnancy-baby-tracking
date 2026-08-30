@@ -6,6 +6,8 @@ enum WeightDisplay { kg, lb }
 
 enum LengthDisplay { cm, inch }
 
+enum GlucoseDisplay { mgdl, mmoll }
+
 class UnitConverter {
   UnitConverter._();
 

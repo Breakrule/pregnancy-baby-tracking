@@ -52,14 +52,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     LengthDisplay.inch => LengthUnit.inch,
   };
 
-  String _glucoseLabel(GlucoseUnit u) => switch (u) {
-    GlucoseUnit.mgdl => 'mg/dL',
-    GlucoseUnit.mmoll => 'mmol/L',
+  GlucoseDisplay _toGlucoseDisplay(GlucoseUnit u) => switch (u) {
+    GlucoseUnit.mgdl => GlucoseDisplay.mgdl,
+    GlucoseUnit.mmoll => GlucoseDisplay.mmoll,
   };
 
-  GlucoseUnit _glucoseFromLabel(String label) => switch (label) {
-    'mmol/L' => GlucoseUnit.mmoll,
-    _ => GlucoseUnit.mgdl,
+  GlucoseUnit _fromGlucoseDisplay(GlucoseDisplay d) => switch (d) {
+    GlucoseDisplay.mgdl => GlucoseUnit.mgdl,
+    GlucoseDisplay.mmoll => GlucoseUnit.mmoll,
   };
 
   // ── PIN dialogs ───────────────────────────────────────────────────────
@@ -89,7 +89,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ],
       ),
-    );
+    ).whenComplete(controller.dispose);
   }
 
   Future<String?> _promptNewPin() async {
@@ -147,62 +147,74 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ref.invalidate(settingsProvider);
   }
 
-  Future<void> _onGlucoseChanged(String label) async {
+  Future<void> _onGlucoseChanged(GlucoseDisplay value) async {
     await ref
         .read(settingsRepositoryProvider)
         .update(
-          SettingsRowsCompanion(glucoseUnit: Value(_glucoseFromLabel(label))),
+          SettingsRowsCompanion(glucoseUnit: Value(_fromGlucoseDisplay(value))),
         );
     ref.invalidate(settingsProvider);
   }
 
+  bool _isTogglingLock = false;
+
   Future<void> _toggleLock(bool currentEnabled) async {
-    if (!currentEnabled) {
-      // Enabling lock — prompt for new PIN.
-      final pin = await _promptNewPin();
-      if (pin == null) return;
-      final salt = PinHash.generateSalt();
-      final hash = PinHash.hash(pin, salt);
-      await ref
-          .read(settingsRepositoryProvider)
-          .update(
-            SettingsRowsCompanion(
-              lockEnabled: const Value(true),
-              pinHash: Value(hash),
-              pinSalt: Value(salt),
-            ),
-          );
-      ref.invalidate(settingsProvider);
-      await ref.read(appLockNotifierProvider.notifier).syncFromSettings();
-    } else {
-      // Disabling lock — verify current PIN first.
-      final settings = await ref.read(settingsRepositoryProvider).get();
-      final storedSalt = settings.pinSalt;
-      final storedHash = settings.pinHash;
-      if (storedSalt == null || storedHash == null) return;
+    if (_isTogglingLock) return;
+    _isTogglingLock = true;
+    var succeeded = false;
+    try {
+      if (!currentEnabled) {
+        // Enabling lock — prompt for new PIN.
+        final pin = await _promptNewPin();
+        if (pin == null) return;
+        final salt = PinHash.generateSalt();
+        final hash = PinHash.hash(pin, salt);
+        await ref
+            .read(settingsRepositoryProvider)
+            .update(
+              SettingsRowsCompanion(
+                lockEnabled: const Value(true),
+                pinHash: Value(hash),
+                pinSalt: Value(salt),
+              ),
+            );
+        ref.invalidate(settingsProvider);
+        await ref.read(appLockNotifierProvider.notifier).syncFromSettings();
+        succeeded = true;
+      } else {
+        // Disabling lock — verify current PIN first.
+        final settings = await ref.read(settingsRepositoryProvider).get();
+        final storedSalt = settings.pinSalt;
+        final storedHash = settings.pinHash;
+        if (storedSalt == null || storedHash == null) return;
 
-      final pin = await _promptVerifyPin();
-      if (pin == null) return;
-      if (!PinHash.verify(pin, storedSalt, storedHash)) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Incorrect PIN')));
+        final pin = await _promptVerifyPin();
+        if (pin == null) return;
+        if (!PinHash.verify(pin, storedSalt, storedHash)) {
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Incorrect PIN')));
+          }
+          return;
         }
-        return;
-      }
 
-      await ref
-          .read(settingsRepositoryProvider)
-          .update(
-            SettingsRowsCompanion(
-              lockEnabled: const Value(false),
-              pinHash: const Value(null),
-              pinSalt: const Value(null),
-            ),
-          );
-      ref.invalidate(settingsProvider);
-      await ref.read(appLockNotifierProvider.notifier).syncFromSettings();
+        await ref
+            .read(settingsRepositoryProvider)
+            .update(
+              SettingsRowsCompanion(
+                lockEnabled: const Value(false),
+                pinHash: const Value(null),
+                pinSalt: const Value(null),
+              ),
+            );
+        ref.invalidate(settingsProvider);
+        await ref.read(appLockNotifierProvider.notifier).syncFromSettings();
+        succeeded = true;
+      }
+    } finally {
+      _isTogglingLock = false;
+      if (!succeeded) ref.invalidate(settingsProvider);
     }
   }
 
@@ -227,81 +239,101 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     DateTime? selectedDueDate = active.dueDate;
     dueDateController.text = _formatDate(selectedDueDate);
 
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Pregnancy details'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: Text(
-                    dueDateController.text.isEmpty
-                        ? 'Select due date'
-                        : dueDateController.text,
-                  ),
-                  leading: const Icon(Icons.calendar_today),
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: ctx,
-                      initialDate: selectedDueDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (picked != null) {
-                      setDialogState(() {
-                        selectedDueDate = picked;
-                        dueDateController.text = _formatDate(picked);
-                      });
-                    }
-                  },
+    final result =
+        await showDialog<bool>(
+          context: context,
+          builder: (ctx) => StatefulBuilder(
+            builder: (ctx, setDialogState) => AlertDialog(
+              title: const Text('Pregnancy details'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: Text(
+                        dueDateController.text.isEmpty
+                            ? 'Select due date'
+                            : dueDateController.text,
+                      ),
+                      leading: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: ctx,
+                          initialDate: selectedDueDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setDialogState(() {
+                            selectedDueDate = picked;
+                            dueDateController.text = _formatDate(picked);
+                          });
+                        }
+                      },
+                    ),
+                    DropdownButtonFormField<String>(
+                      initialValue:
+                          _bloodTypes.contains(bloodTypeController.text)
+                          ? bloodTypeController.text
+                          : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Blood type',
+                      ),
+                      items: _bloodTypes
+                          .map(
+                            (bt) =>
+                                DropdownMenuItem(value: bt, child: Text(bt)),
+                          )
+                          .toList(),
+                      onChanged: (v) => bloodTypeController.text = v ?? '',
+                    ),
+                    TextField(
+                      controller: clinicNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Clinic name',
+                      ),
+                    ),
+                    TextField(
+                      controller: clinicPhoneController,
+                      decoration: const InputDecoration(
+                        labelText: 'Clinic phone',
+                      ),
+                    ),
+                    TextField(
+                      controller: hospitalNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Hospital name',
+                      ),
+                    ),
+                    TextField(
+                      controller: hospitalAddressController,
+                      decoration: const InputDecoration(
+                        labelText: 'Hospital address',
+                      ),
+                    ),
+                  ],
                 ),
-                DropdownButtonFormField<String>(
-                  initialValue: _bloodTypes.contains(bloodTypeController.text)
-                      ? bloodTypeController.text
-                      : null,
-                  decoration: const InputDecoration(labelText: 'Blood type'),
-                  items: _bloodTypes
-                      .map((bt) => DropdownMenuItem(value: bt, child: Text(bt)))
-                      .toList(),
-                  onChanged: (v) => bloodTypeController.text = v ?? '',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancel'),
                 ),
-                TextField(
-                  controller: clinicNameController,
-                  decoration: const InputDecoration(labelText: 'Clinic name'),
-                ),
-                TextField(
-                  controller: clinicPhoneController,
-                  decoration: const InputDecoration(labelText: 'Clinic phone'),
-                ),
-                TextField(
-                  controller: hospitalNameController,
-                  decoration: const InputDecoration(labelText: 'Hospital name'),
-                ),
-                TextField(
-                  controller: hospitalAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Hospital address',
-                  ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Save'),
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
+        ).whenComplete(() {
+          dueDateController.dispose();
+          bloodTypeController.dispose();
+          clinicNameController.dispose();
+          clinicPhoneController.dispose();
+          hospitalNameController.dispose();
+          hospitalAddressController.dispose();
+        });
 
     if (result == true && selectedDueDate != null) {
       final newLmp = GestationalCalculator.lmpFromDueDate(selectedDueDate!);
@@ -386,13 +418,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (v != null) _onLengthChanged(v);
               },
             ).withPadding(),
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<GlucoseDisplay>(
               key: const Key('glucose-unit-dropdown'),
-              initialValue: _glucoseLabel(settings.glucoseUnit),
+              initialValue: _toGlucoseDisplay(settings.glucoseUnit),
               decoration: const InputDecoration(labelText: 'Glucose'),
               items: const [
-                DropdownMenuItem(value: 'mg/dL', child: Text('mg/dL')),
-                DropdownMenuItem(value: 'mmol/L', child: Text('mmol/L')),
+                DropdownMenuItem(
+                  value: GlucoseDisplay.mgdl,
+                  child: Text('mg/dL'),
+                ),
+                DropdownMenuItem(
+                  value: GlucoseDisplay.mmoll,
+                  child: Text('mmol/L'),
+                ),
               ],
               onChanged: (v) {
                 if (v != null) _onGlucoseChanged(v);
@@ -402,7 +440,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // ── App lock section ─────────────────────────────────────
             const _SectionHeader('Security'),
             SwitchListTile(
-              key: const Key('lock-toggle'),
+              key: const Key('app-lock-switch'),
               title: const Text('App lock'),
               subtitle: Text(
                 settings.lockEnabled ? 'PIN protection enabled' : 'Off',
