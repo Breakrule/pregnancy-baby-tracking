@@ -9,6 +9,7 @@ import '../features/pregnancy/learn/learn_screen.dart';
 import '../features/pregnancy/learn/week_detail_screen.dart';
 import '../features/pregnancy/setup/setup_wizard_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
+import '../features/pregnancy/track/weight_entry_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 
 /// Notifies GoRouter to re-evaluate redirects when the active pregnancy
@@ -61,10 +62,7 @@ GoRouter buildRouter({
         branches: [
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: '/home',
-                builder: (context, state) => const HomeScreen(),
-              ),
+              GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
             ],
           ),
           StatefulShellBranch(
@@ -72,6 +70,12 @@ GoRouter buildRouter({
               GoRoute(
                 path: '/track',
                 builder: (context, state) => const TrackScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'weight/new',
+                    builder: (c, s) => const WeightEntryScreen(),
+                  ),
+                ],
               ),
             ],
           ),

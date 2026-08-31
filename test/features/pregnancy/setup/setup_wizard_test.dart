@@ -66,7 +66,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome to Nurture'), findsNothing);
-    expect(find.text('Home (Phase 0)'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+
+    // Tear down provider tree to cancel Drift stream timers
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
   });
 }
 
