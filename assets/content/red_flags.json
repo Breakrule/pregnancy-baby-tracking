@@ -1,0 +1,13 @@
+{
+  "red_flags": [
+    {"key": "heavy_bleeding", "label": "Heavy vaginal bleeding", "message": "Heavy bleeding in pregnancy needs urgent assessment. Contact your provider now or go to the emergency department."},
+    {"key": "severe_headache", "label": "Severe headache", "message": "A severe headache can be a warning sign. Contact your provider now."},
+    {"key": "vision_changes", "label": "Vision changes (blurring, flashing lights)", "message": "Vision changes can be a warning sign. Contact your provider now."},
+    {"key": "severe_abdominal_pain", "label": "Severe abdominal pain", "message": "Severe abdominal pain needs urgent assessment. Contact your provider now or go to the emergency department."},
+    {"key": "fluid_leaking", "label": "Fluid leaking or gush from vagina", "message": "This could mean your waters broke. Contact your provider now."},
+    {"key": "fever", "label": "Fever 38.0 °C or higher", "message": "Fever in pregnancy should be assessed. Contact your provider today."},
+    {"key": "calf_pain", "label": "One-sided calf pain or swelling", "message": "This can be a sign of a blood clot. Seek urgent medical care now."},
+    {"key": "fainting", "label": "Fainting or severe dizziness", "message": "Contact your provider now or go to the emergency department."},
+    {"key": "persistent_vomiting", "label": "Unable to keep fluids down for 24h", "message": "You may need treatment for dehydration. Contact your provider today."}
+  ]
+}

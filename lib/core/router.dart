@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import '../features/more/more_screen.dart';
 import '../features/pregnancy/home/home_screen.dart';
+import '../features/pregnancy/learn/danger_signs_screen.dart';
 import '../features/pregnancy/learn/learn_screen.dart';
 import '../features/pregnancy/learn/week_detail_screen.dart';
 import '../features/pregnancy/setup/setup_wizard_screen.dart';
+import '../features/pregnancy/symptoms/symptom_entry_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
 import '../features/pregnancy/track/weight_entry_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
@@ -75,6 +77,10 @@ GoRouter buildRouter({
                     path: 'weight/new',
                     builder: (c, s) => const WeightEntryScreen(),
                   ),
+                  GoRoute(
+                    path: 'symptoms/new',
+                    builder: (c, s) => const SymptomEntryScreen(),
+                  ),
                 ],
               ),
             ],
@@ -85,6 +91,10 @@ GoRouter buildRouter({
                 path: '/learn',
                 builder: (context, state) => const LearnScreen(),
                 routes: [
+                  GoRoute(
+                    path: 'danger-signs',
+                    builder: (c, s) => const DangerSignsScreen(),
+                  ),
                   GoRoute(
                     path: 'week/:w',
                     redirect: (context, state) {

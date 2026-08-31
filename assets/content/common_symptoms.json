@@ -1,0 +1,20 @@
+{
+  "symptoms": [
+    {"key": "nausea", "label": "Nausea / morning sickness"},
+    {"key": "fatigue", "label": "Fatigue"},
+    {"key": "breast_tenderness", "label": "Breast tenderness"},
+    {"key": "back_pain", "label": "Back pain"},
+    {"key": "round_ligament_pain", "label": "Round ligament pain"},
+    {"key": "heartburn", "label": "Heartburn"},
+    {"key": "constipation", "label": "Constipation"},
+    {"key": "frequent_urination", "label": "Frequent urination"},
+    {"key": "mild_cramping", "label": "Mild cramping"},
+    {"key": "headache_mild", "label": "Mild headache"},
+    {"key": "dizziness_mild", "label": "Mild dizziness"},
+    {"key": "swelling_mild", "label": "Mild swelling (hands/feet)"},
+    {"key": "mood_changes", "label": "Mood changes"},
+    {"key": "food_aversion", "label": "Food aversions"},
+    {"key": "insomnia", "label": "Trouble sleeping"},
+    {"key": "light_spotting", "label": "Light spotting"}
+  ]
+}

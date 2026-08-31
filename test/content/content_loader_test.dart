@@ -23,6 +23,16 @@ void main() {
     expect(week9.development, isNotEmpty);
     expect(week9.bodyChanges, isNotEmpty);
     expect(week9.tips, isNotEmpty);
+
+    // Red flags loaded from red_flags.json
+    expect(bundle.redFlags.length, 9);
+    expect(bundle.redFlags.first.key, 'heavy_bleeding');
+    expect(bundle.redFlags.first.label, 'Heavy vaginal bleeding');
+
+    // Symptom presets loaded from common_symptoms.json
+    expect(bundle.symptomPresets.length, 16);
+    expect(bundle.symptomPresets.first.key, 'nausea');
+    expect(bundle.symptomPresets.first.label, 'Nausea / morning sickness');
   });
 
   test('weekFor returns null outside authored range', () {

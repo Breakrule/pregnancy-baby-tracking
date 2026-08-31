@@ -1,8 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../content/models.dart';
+import '../content/providers.dart';
+import '../domain/alerts/alert_engine.dart';
+import '../domain/alerts/symptom_rules.dart';
 import 'db/app_database.dart';
 import 'repositories/pregnancy_repository.dart';
 import 'repositories/settings_repository.dart';
+import 'repositories/symptom_repository.dart';
 import '../features/shared/app_lock/auth_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -31,3 +36,21 @@ final settingsProvider = FutureProvider<SettingsRow>((ref) {
 final authServiceProvider = Provider<AuthService>(
   (ref) => LocalAuthServiceImpl(),
 );
+
+final symptomRepositoryProvider = Provider<SymptomRepository>((ref) {
+  return SymptomRepository(ref.watch(appDatabaseProvider));
+});
+
+final symptomsStreamProvider = StreamProvider<List<Symptom>>((ref) {
+  return ref.watch(symptomRepositoryProvider).watchAll();
+});
+
+// Safe to use valueOrNull: SymptomEntryScreen gates on contentProvider's
+// loading/error states and only exposes Save once data has loaded.
+final alertEngineProvider = Provider<AlertEngine>((ref) {
+  final bundle = ref.watch(contentProvider).valueOrNull;
+  final flags = <String, String>{
+    for (final f in bundle?.redFlags ?? const <RedFlag>[]) f.key: f.message,
+  };
+  return AlertEngine([SymptomRedFlagRule(redFlagMessages: flags).rule]);
+});
