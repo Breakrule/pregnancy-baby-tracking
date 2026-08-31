@@ -8,6 +8,7 @@ import 'db/app_database.dart';
 import 'repositories/pregnancy_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'repositories/symptom_repository.dart';
+import 'repositories/weight_repository.dart';
 import '../features/shared/app_lock/auth_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -43,6 +44,14 @@ final symptomRepositoryProvider = Provider<SymptomRepository>((ref) {
 
 final symptomsStreamProvider = StreamProvider<List<Symptom>>((ref) {
   return ref.watch(symptomRepositoryProvider).watchAll();
+});
+
+final weightRepositoryProvider = Provider<WeightRepository>((ref) {
+  return WeightRepository(ref.watch(appDatabaseProvider));
+});
+
+final weightsStreamProvider = StreamProvider<List<WeightEntry>>((ref) {
+  return ref.watch(weightRepositoryProvider).watchAll();
 });
 
 // Safe to use valueOrNull: SymptomEntryScreen gates on contentProvider's

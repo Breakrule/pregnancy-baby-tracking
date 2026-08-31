@@ -10,8 +10,12 @@ import '../features/pregnancy/learn/learn_screen.dart';
 import '../features/pregnancy/learn/week_detail_screen.dart';
 import '../features/pregnancy/setup/setup_wizard_screen.dart';
 import '../features/pregnancy/symptoms/symptom_entry_screen.dart';
+import '../features/pregnancy/symptoms/symptom_history_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
-import '../features/pregnancy/track/weight_entry_screen.dart';
+import '../features/pregnancy/weight/weight_entry_screen.dart';
+import '../features/pregnancy/weight/weight_history_screen.dart';
+import '../features/pregnancy/appointments/appointments_screen.dart';
+import '../features/pregnancy/medications/medications_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 
 /// Notifies GoRouter to re-evaluate redirects when the active pregnancy
@@ -74,12 +78,32 @@ GoRouter buildRouter({
                 builder: (context, state) => const TrackScreen(),
                 routes: [
                   GoRoute(
-                    path: 'weight/new',
-                    builder: (c, s) => const WeightEntryScreen(),
+                    path: 'weight',
+                    builder: (c, s) => const WeightHistoryScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (c, s) => const WeightEntryScreen(),
+                      ),
+                    ],
                   ),
                   GoRoute(
-                    path: 'symptoms/new',
-                    builder: (c, s) => const SymptomEntryScreen(),
+                    path: 'symptoms',
+                    builder: (c, s) => const SymptomHistoryScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (c, s) => const SymptomEntryScreen(),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'appointments',
+                    builder: (c, s) => const AppointmentsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'medications',
+                    builder: (c, s) => const MedicationsScreen(),
                   ),
                 ],
               ),
