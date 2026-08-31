@@ -83,6 +83,13 @@ GoRouter buildRouter({
                 routes: [
                   GoRoute(
                     path: 'week/:w',
+                    redirect: (context, state) {
+                      if (int.tryParse(state.pathParameters['w'] ?? '') ==
+                          null) {
+                        return '/learn';
+                      }
+                      return null;
+                    },
                     builder: (context, state) {
                       final week = int.parse(state.pathParameters['w']!);
                       return WeekDetailScreen(week: week);

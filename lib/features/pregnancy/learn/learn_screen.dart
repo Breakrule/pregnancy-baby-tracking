@@ -8,9 +8,12 @@ import '../../../core/widgets/disclaimer_footer.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 import '../../../domain/gestational/gestational_calculator.dart';
+import 'content_widgets.dart';
 
 class LearnScreen extends ConsumerWidget {
-  const LearnScreen({super.key});
+  const LearnScreen({super.key, this.now});
+
+  final DateTime? now;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +31,11 @@ class LearnScreen extends ConsumerWidget {
           data: (pregnancy) => ListView(
             padding: const EdgeInsets.only(bottom: 16),
             children: [
-              _ThisWeekCard(bundle: bundle, pregnancy: pregnancy),
+              _ThisWeekCard(
+                bundle: bundle,
+                pregnancy: pregnancy,
+                now: now ?? DateTime.now(),
+              ),
               const SizedBox(height: 16),
               _AllWeeksList(bundle: bundle),
               const DisclaimerFooter(),
@@ -41,10 +48,15 @@ class LearnScreen extends ConsumerWidget {
 }
 
 class _ThisWeekCard extends StatelessWidget {
-  const _ThisWeekCard({required this.bundle, required this.pregnancy});
+  const _ThisWeekCard({
+    required this.bundle,
+    required this.pregnancy,
+    required this.now,
+  });
 
   final ContentBundle bundle;
   final Pregnancy? pregnancy;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +73,7 @@ class _ThisWeekCard extends StatelessWidget {
       );
     }
 
-    final ga = GestationalCalculator.gestationalAgeAt(
-      pregnancy!.lmpDate,
-      DateTime.now(),
-    );
+    final ga = GestationalCalculator.gestationalAgeAt(pregnancy!.lmpDate, now);
     final weekContent = bundle.weekFor(ga.weeks);
 
     if (weekContent == null) {
@@ -97,18 +106,24 @@ class _ThisWeekCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            _SectionHeader(title: 'Baby development'),
-            ...weekContent.development.map((String d) => _Bullet(text: d)),
+            ContentSectionHeader(title: 'Baby development'),
+            ...weekContent.development.map(
+              (String d) => ContentBullet(text: d),
+            ),
             const SizedBox(height: 8),
-            _SectionHeader(title: 'Your body'),
-            ...weekContent.bodyChanges.map((String b) => _Bullet(text: b)),
+            ContentSectionHeader(title: 'Your body'),
+            ...weekContent.bodyChanges.map(
+              (String b) => ContentBullet(text: b),
+            ),
             const SizedBox(height: 8),
-            _SectionHeader(title: 'Tips'),
-            ...weekContent.tips.map((String t) => _Bullet(text: t)),
+            ContentSectionHeader(title: 'Tips'),
+            ...weekContent.tips.map((String t) => ContentBullet(text: t)),
             if (weekContent.checklist.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _SectionHeader(title: 'Checklist'),
-              ...weekContent.checklist.map((String c) => _Bullet(text: c)),
+              ContentSectionHeader(title: 'Checklist'),
+              ...weekContent.checklist.map(
+                (String c) => ContentBullet(text: c),
+              ),
             ],
           ],
         ),
@@ -142,45 +157,6 @@ class _AllWeeksList extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-}
-
-class _Bullet extends StatelessWidget {
-  const _Bullet({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('\u2022 '),
-          Expanded(child: Text(text)),
-        ],
-      ),
     );
   }
 }

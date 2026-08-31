@@ -1,11 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nurture/content/content_loader.dart';
+import 'package:nurture/content/models.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('weeks.json parses with weeks 3 through 16 complete', () async {
-    final bundle = await ContentLoader.load();
+  late final ContentBundle bundle;
+
+  setUpAll(() async {
+    bundle = await ContentLoader.load();
+  });
+
+  test('weeks.json parses with weeks 3 through 16 complete', () {
     expect(bundle.weeks.length, 14);
     expect(
       bundle.weeks.map((w) => w.week).toList(),
@@ -19,8 +25,7 @@ void main() {
     expect(week9.tips, isNotEmpty);
   });
 
-  test('weekFor returns null outside authored range', () async {
-    final bundle = await ContentLoader.load();
+  test('weekFor returns null outside authored range', () {
     expect(bundle.weekFor(30), isNull);
   });
 }
