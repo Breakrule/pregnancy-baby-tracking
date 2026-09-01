@@ -3136,6 +3136,472 @@ class AppointmentsCompanion extends UpdateCompanion<Appointment> {
   }
 }
 
+class $PhotosTable extends Photos with TableInfo<$PhotosTable, Photo> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PhotosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PhotoCategory, String> category =
+      GeneratedColumn<String>(
+        'category',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<PhotoCategory>($PhotosTable.$convertercategory);
+  static const VerificationMeta _takenAtMeta = const VerificationMeta(
+    'takenAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> takenAt = GeneratedColumn<DateTime>(
+    'taken_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fileNameMeta = const VerificationMeta(
+    'fileName',
+  );
+  @override
+  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
+    'file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gestationalDaysMeta = const VerificationMeta(
+    'gestationalDays',
+  );
+  @override
+  late final GeneratedColumn<int> gestationalDays = GeneratedColumn<int>(
+    'gestational_days',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    category,
+    takenAt,
+    fileName,
+    gestationalDays,
+    notes,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'photos';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Photo> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('taken_at')) {
+      context.handle(
+        _takenAtMeta,
+        takenAt.isAcceptableOrUnknown(data['taken_at']!, _takenAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_takenAtMeta);
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(
+        _fileNameMeta,
+        fileName.isAcceptableOrUnknown(data['file_name']!, _fileNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fileNameMeta);
+    }
+    if (data.containsKey('gestational_days')) {
+      context.handle(
+        _gestationalDaysMeta,
+        gestationalDays.isAcceptableOrUnknown(
+          data['gestational_days']!,
+          _gestationalDaysMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Photo map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Photo(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      category: $PhotosTable.$convertercategory.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        )!,
+      ),
+      takenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}taken_at'],
+      )!,
+      fileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_name'],
+      )!,
+      gestationalDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gestational_days'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PhotosTable createAlias(String alias) {
+    return $PhotosTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<PhotoCategory, String, String> $convertercategory =
+      const EnumNameConverter<PhotoCategory>(PhotoCategory.values);
+}
+
+class Photo extends DataClass implements Insertable<Photo> {
+  final int id;
+  final PhotoCategory category;
+  final DateTime takenAt;
+  final String fileName;
+
+  /// Gestational age at the time of the photo, for belly/ultrasound
+  /// categories. Null for baby photos.
+  final int? gestationalDays;
+  final String? notes;
+  final DateTime createdAt;
+  const Photo({
+    required this.id,
+    required this.category,
+    required this.takenAt,
+    required this.fileName,
+    this.gestationalDays,
+    this.notes,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    {
+      map['category'] = Variable<String>(
+        $PhotosTable.$convertercategory.toSql(category),
+      );
+    }
+    map['taken_at'] = Variable<DateTime>(takenAt);
+    map['file_name'] = Variable<String>(fileName);
+    if (!nullToAbsent || gestationalDays != null) {
+      map['gestational_days'] = Variable<int>(gestationalDays);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PhotosCompanion toCompanion(bool nullToAbsent) {
+    return PhotosCompanion(
+      id: Value(id),
+      category: Value(category),
+      takenAt: Value(takenAt),
+      fileName: Value(fileName),
+      gestationalDays: gestationalDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gestationalDays),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Photo.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Photo(
+      id: serializer.fromJson<int>(json['id']),
+      category: $PhotosTable.$convertercategory.fromJson(
+        serializer.fromJson<String>(json['category']),
+      ),
+      takenAt: serializer.fromJson<DateTime>(json['takenAt']),
+      fileName: serializer.fromJson<String>(json['fileName']),
+      gestationalDays: serializer.fromJson<int?>(json['gestationalDays']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'category': serializer.toJson<String>(
+        $PhotosTable.$convertercategory.toJson(category),
+      ),
+      'takenAt': serializer.toJson<DateTime>(takenAt),
+      'fileName': serializer.toJson<String>(fileName),
+      'gestationalDays': serializer.toJson<int?>(gestationalDays),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  Photo copyWith({
+    int? id,
+    PhotoCategory? category,
+    DateTime? takenAt,
+    String? fileName,
+    Value<int?> gestationalDays = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+  }) => Photo(
+    id: id ?? this.id,
+    category: category ?? this.category,
+    takenAt: takenAt ?? this.takenAt,
+    fileName: fileName ?? this.fileName,
+    gestationalDays: gestationalDays.present
+        ? gestationalDays.value
+        : this.gestationalDays,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  Photo copyWithCompanion(PhotosCompanion data) {
+    return Photo(
+      id: data.id.present ? data.id.value : this.id,
+      category: data.category.present ? data.category.value : this.category,
+      takenAt: data.takenAt.present ? data.takenAt.value : this.takenAt,
+      fileName: data.fileName.present ? data.fileName.value : this.fileName,
+      gestationalDays: data.gestationalDays.present
+          ? data.gestationalDays.value
+          : this.gestationalDays,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Photo(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('fileName: $fileName, ')
+          ..write('gestationalDays: $gestationalDays, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    category,
+    takenAt,
+    fileName,
+    gestationalDays,
+    notes,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Photo &&
+          other.id == this.id &&
+          other.category == this.category &&
+          other.takenAt == this.takenAt &&
+          other.fileName == this.fileName &&
+          other.gestationalDays == this.gestationalDays &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt);
+}
+
+class PhotosCompanion extends UpdateCompanion<Photo> {
+  final Value<int> id;
+  final Value<PhotoCategory> category;
+  final Value<DateTime> takenAt;
+  final Value<String> fileName;
+  final Value<int?> gestationalDays;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  const PhotosCompanion({
+    this.id = const Value.absent(),
+    this.category = const Value.absent(),
+    this.takenAt = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.gestationalDays = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  PhotosCompanion.insert({
+    this.id = const Value.absent(),
+    required PhotoCategory category,
+    required DateTime takenAt,
+    required String fileName,
+    this.gestationalDays = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : category = Value(category),
+       takenAt = Value(takenAt),
+       fileName = Value(fileName);
+  static Insertable<Photo> custom({
+    Expression<int>? id,
+    Expression<String>? category,
+    Expression<DateTime>? takenAt,
+    Expression<String>? fileName,
+    Expression<int>? gestationalDays,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (category != null) 'category': category,
+      if (takenAt != null) 'taken_at': takenAt,
+      if (fileName != null) 'file_name': fileName,
+      if (gestationalDays != null) 'gestational_days': gestationalDays,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  PhotosCompanion copyWith({
+    Value<int>? id,
+    Value<PhotoCategory>? category,
+    Value<DateTime>? takenAt,
+    Value<String>? fileName,
+    Value<int?>? gestationalDays,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+  }) {
+    return PhotosCompanion(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      takenAt: takenAt ?? this.takenAt,
+      fileName: fileName ?? this.fileName,
+      gestationalDays: gestationalDays ?? this.gestationalDays,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(
+        $PhotosTable.$convertercategory.toSql(category.value),
+      );
+    }
+    if (takenAt.present) {
+      map['taken_at'] = Variable<DateTime>(takenAt.value);
+    }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
+    if (gestationalDays.present) {
+      map['gestational_days'] = Variable<int>(gestationalDays.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhotosCompanion(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('fileName: $fileName, ')
+          ..write('gestationalDays: $gestationalDays, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3146,6 +3612,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MedicationsTable medications = $MedicationsTable(this);
   late final $MedLogsTable medLogs = $MedLogsTable(this);
   late final $AppointmentsTable appointments = $AppointmentsTable(this);
+  late final $PhotosTable photos = $PhotosTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3158,6 +3625,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     medications,
     medLogs,
     appointments,
+    photos,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -5007,6 +5475,235 @@ typedef $$AppointmentsTableProcessedTableManager =
       Appointment,
       PrefetchHooks Function()
     >;
+typedef $$PhotosTableCreateCompanionBuilder =
+    PhotosCompanion Function({
+      Value<int> id,
+      required PhotoCategory category,
+      required DateTime takenAt,
+      required String fileName,
+      Value<int?> gestationalDays,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+    });
+typedef $$PhotosTableUpdateCompanionBuilder =
+    PhotosCompanion Function({
+      Value<int> id,
+      Value<PhotoCategory> category,
+      Value<DateTime> takenAt,
+      Value<String> fileName,
+      Value<int?> gestationalDays,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+    });
+
+class $$PhotosTableFilterComposer
+    extends Composer<_$AppDatabase, $PhotosTable> {
+  $$PhotosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PhotoCategory, PhotoCategory, String>
+  get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get takenAt => $composableBuilder(
+    column: $table.takenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gestationalDays => $composableBuilder(
+    column: $table.gestationalDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PhotosTableOrderingComposer
+    extends Composer<_$AppDatabase, $PhotosTable> {
+  $$PhotosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get takenAt => $composableBuilder(
+    column: $table.takenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gestationalDays => $composableBuilder(
+    column: $table.gestationalDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PhotosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PhotosTable> {
+  $$PhotosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PhotoCategory, String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get takenAt =>
+      $composableBuilder(column: $table.takenAt, builder: (column) => column);
+
+  GeneratedColumn<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => column);
+
+  GeneratedColumn<int> get gestationalDays => $composableBuilder(
+    column: $table.gestationalDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PhotosTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PhotosTable,
+          Photo,
+          $$PhotosTableFilterComposer,
+          $$PhotosTableOrderingComposer,
+          $$PhotosTableAnnotationComposer,
+          $$PhotosTableCreateCompanionBuilder,
+          $$PhotosTableUpdateCompanionBuilder,
+          (Photo, BaseReferences<_$AppDatabase, $PhotosTable, Photo>),
+          Photo,
+          PrefetchHooks Function()
+        > {
+  $$PhotosTableTableManager(_$AppDatabase db, $PhotosTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PhotosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PhotosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PhotosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<PhotoCategory> category = const Value.absent(),
+                Value<DateTime> takenAt = const Value.absent(),
+                Value<String> fileName = const Value.absent(),
+                Value<int?> gestationalDays = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PhotosCompanion(
+                id: id,
+                category: category,
+                takenAt: takenAt,
+                fileName: fileName,
+                gestationalDays: gestationalDays,
+                notes: notes,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required PhotoCategory category,
+                required DateTime takenAt,
+                required String fileName,
+                Value<int?> gestationalDays = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PhotosCompanion.insert(
+                id: id,
+                category: category,
+                takenAt: takenAt,
+                fileName: fileName,
+                gestationalDays: gestationalDays,
+                notes: notes,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PhotosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PhotosTable,
+      Photo,
+      $$PhotosTableFilterComposer,
+      $$PhotosTableOrderingComposer,
+      $$PhotosTableAnnotationComposer,
+      $$PhotosTableCreateCompanionBuilder,
+      $$PhotosTableUpdateCompanionBuilder,
+      (Photo, BaseReferences<_$AppDatabase, $PhotosTable, Photo>),
+      Photo,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5025,4 +5722,6 @@ class $AppDatabaseManager {
       $$MedLogsTableTableManager(_db, _db.medLogs);
   $$AppointmentsTableTableManager get appointments =>
       $$AppointmentsTableTableManager(_db, _db.appointments);
+  $$PhotosTableTableManager get photos =>
+      $$PhotosTableTableManager(_db, _db.photos);
 }
