@@ -15,7 +15,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.32
   freezed_annotation: ^2.4.4
   flutter_local_notifications: ^18.0.1
-  flutter_timezone: ^4.1.0
+  flutter_timezone: ^5.1.0
   timezone: ^0.10.0
   local_auth: ^2.3.0
   fl_chart: ^0.70.2
