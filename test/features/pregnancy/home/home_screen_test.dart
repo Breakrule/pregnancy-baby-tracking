@@ -87,7 +87,7 @@ void main() {
     // Verify Today card
     expect(find.text('Today'), findsOneWidget);
     expect(find.textContaining('No upcoming appointments'), findsOneWidget);
-    expect(find.text('Medications appear here soon'), findsOneWidget);
+    expect(find.text('No medications added'), findsOneWidget);
 
     // Tear down the provider tree to cancel Drift stream timers
     await tester.pumpWidget(const SizedBox.shrink());

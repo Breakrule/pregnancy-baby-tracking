@@ -6,10 +6,42 @@ import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 import 'hero_card.dart';
 
-// replaced in Task 13
-final medsDueTodayProvider = Provider<String>(
-  (ref) => 'Medications appear here soon',
-);
+/// Today-card summary of active medications, e.g. "2 of 3 medications
+/// taken". Keyed by the screen clock so tests can pin "today".
+final medsDueTodayProvider = Provider.family<AsyncValue<String>, DateTime>((
+  ref,
+  now,
+) {
+  final medsAsync = ref.watch(activeMedsProvider);
+  final logsAsync = ref.watch(medLogsProvider);
+
+  return medsAsync.when(
+    loading: () => const AsyncLoading<String>(),
+    error: (e, st) => AsyncError<String>(e, st),
+    data: (meds) => logsAsync.when(
+      loading: () => const AsyncLoading<String>(),
+      error: (e, st) => AsyncError<String>(e, st),
+      data: (logs) {
+        if (meds.isEmpty) {
+          return const AsyncData('No medications added');
+        }
+        final taken = meds.where((med) {
+          return logs.any((log) {
+            final local = log.takenAt.toLocal();
+            return log.medicationId == med.id &&
+                local.year == now.year &&
+                local.month == now.month &&
+                local.day == now.day;
+          });
+        }).length;
+        final text = taken == meds.length
+            ? 'All medications taken'
+            : '$taken of ${meds.length} medications taken';
+        return AsyncData(text);
+      },
+    ),
+  );
+});
 
 // replaced in Task 14
 final nextAppointmentProvider = StreamProvider<Appointment?>(
@@ -46,7 +78,7 @@ class HomeScreen extends ConsumerWidget {
     Pregnancy pregnancy,
   ) {
     final nextApptAsync = ref.watch(nextAppointmentProvider);
-    final medsLine = ref.watch(medsDueTodayProvider);
+    final medsLineAsync = ref.watch(medsDueTodayProvider(now));
 
     return SingleChildScrollView(
       child: Column(
@@ -75,7 +107,11 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(medsLine),
+                  medsLineAsync.when(
+                    loading: () => const Text('Loading medications…'),
+                    error: (e, _) => Text('Error: $e'),
+                    data: (line) => Text(line),
+                  ),
                 ],
               ),
             ),

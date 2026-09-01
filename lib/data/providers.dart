@@ -4,7 +4,9 @@ import '../content/models.dart';
 import '../content/providers.dart';
 import '../domain/alerts/alert_engine.dart';
 import '../domain/alerts/symptom_rules.dart';
+import '../features/shared/reminders/reminder_service.dart';
 import 'db/app_database.dart';
+import 'repositories/medication_repository.dart';
 import 'repositories/pregnancy_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'repositories/symptom_repository.dart';
@@ -63,3 +65,27 @@ final alertEngineProvider = Provider<AlertEngine>((ref) {
   };
   return AlertEngine([SymptomRedFlagRule(redFlagMessages: flags).rule]);
 });
+
+final medicationRepositoryProvider = Provider<MedicationRepository>((ref) {
+  return MedicationRepository(ref.watch(appDatabaseProvider));
+});
+
+/// Active medications, ordered by name.
+final activeMedsProvider = StreamProvider<List<Medication>>((ref) {
+  return ref.watch(medicationRepositoryProvider).watchActiveMeds();
+});
+
+/// All medication logs; watching this lets derived values (e.g. the home
+/// "medications taken" count) refresh when a dose is logged.
+final medLogsProvider = StreamProvider<List<MedLog>>((ref) {
+  return ref.watch(medicationRepositoryProvider).watchLogs();
+});
+
+/// Always overridden in main() with an initialized ReminderService.
+/// Throwing here surfaces missing wiring loudly instead of silently
+/// scheduling nothing.
+final reminderServiceProvider = Provider<ReminderService>(
+  (ref) => throw UnimplementedError(
+    'reminderServiceProvider must be overridden in main',
+  ),
+);
