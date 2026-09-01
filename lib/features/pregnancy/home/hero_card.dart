@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../content/providers.dart';
+import '../../../core/l10n.dart';
 import '../../../data/db/app_database.dart';
 import '../../../domain/gestational/gestational_calculator.dart';
 
@@ -20,15 +21,15 @@ class HeroCard extends ConsumerWidget {
     final daysLeft = GestationalCalculator.daysUntilDue(pregnancy.dueDate, now);
 
     final countdownText = daysLeft > 0
-        ? '$daysLeft days to go'
+        ? context.l10n.heroDaysToGo(daysLeft)
         : daysLeft == 0
-        ? 'Due today'
-        : '${-daysLeft} days overdue';
+        ? context.l10n.heroDueToday
+        : context.l10n.heroDaysOverdue(-daysLeft);
 
     final trimesterLabel = switch (trimester) {
-      Trimester.first => 'Trimester 1',
-      Trimester.second => 'Trimester 2',
-      Trimester.third => 'Trimester 3',
+      Trimester.first => context.l10n.heroTrimester1,
+      Trimester.second => context.l10n.heroTrimester2,
+      Trimester.third => context.l10n.heroTrimester3,
     };
 
     // Read content bundle for size info
@@ -36,7 +37,7 @@ class HeroCard extends ConsumerWidget {
     final sizeLineWidget = contentAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => Text(
-        'Could not load weekly content.',
+        context.l10n.heroContentUnavailable,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.error,
         ),
@@ -45,7 +46,10 @@ class HeroCard extends ConsumerWidget {
         final wc = bundle.weekFor(ga.weeks);
         if (wc == null) return const SizedBox.shrink();
         return Text(
-          'Baby is the size of a ${wc.sizeObject} (~${wc.sizeCm.toStringAsFixed(1)} cm)',
+          context.l10n.heroBabySize(
+            wc.sizeObject,
+            wc.sizeCm.toStringAsFixed(1),
+          ),
         );
       },
     );
@@ -57,7 +61,10 @@ class HeroCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(ga.label, style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              context.l10n.heroWeekDay(ga.weeks, ga.days),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             Chip(label: Text(trimesterLabel)),
             const SizedBox(height: 8),

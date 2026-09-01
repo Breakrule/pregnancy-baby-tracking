@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'l10n.dart';
 import '../features/more/more_screen.dart';
 import '../features/pregnancy/home/home_screen.dart';
 import '../features/pregnancy/learn/danger_signs_screen.dart';
@@ -19,6 +20,9 @@ import '../features/pregnancy/appointments/appointments_screen.dart';
 import '../features/pregnancy/medications/medication_edit_screen.dart';
 import '../features/pregnancy/medications/medications_screen.dart';
 import '../features/shared/backup/backup_screen.dart';
+import '../features/shared/photos/gallery_screen.dart';
+import '../features/shared/photos/photo_add_sheet.dart';
+import '../features/shared/photos/photo_viewer_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 
 /// Notifies GoRouter to re-evaluate redirects when the active pregnancy
@@ -64,6 +68,41 @@ GoRouter buildRouter({
       GoRoute(
         path: '/setup',
         builder: (context, state) => const SetupWizardScreen(),
+      ),
+      GoRoute(
+        path: '/photos/:category',
+        redirect: (context, state) {
+          final category = photoCategoryFromPath(
+            state.pathParameters['category'] ?? '',
+          );
+          return category == null ? '/home' : null;
+        },
+        builder: (context, state) {
+          final category = photoCategoryFromPath(
+            state.pathParameters['category']!,
+          )!;
+          return GalleryScreen(category: category);
+        },
+        routes: [
+          GoRoute(
+            path: ':id',
+            redirect: (context, state) {
+              if (int.tryParse(state.pathParameters['id'] ?? '') == null) {
+                return '/photos/${state.pathParameters['category']}';
+              }
+              return null;
+            },
+            builder: (context, state) {
+              final category = photoCategoryFromPath(
+                state.pathParameters['category']!,
+              )!;
+              return PhotoViewerScreen(
+                category: category,
+                photoId: int.parse(state.pathParameters['id']!),
+              );
+            },
+          ),
+        ],
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -193,26 +232,26 @@ class AppShell extends StatelessWidget {
           index,
           initialLocation: index == navigationShell.currentIndex,
         ),
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: context.l10n.homeTitle,
           ),
           NavigationDestination(
             icon: Icon(Icons.edit_outlined),
             selectedIcon: Icon(Icons.edit),
-            label: 'Track',
+            label: context.l10n.trackTitle,
           ),
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
             selectedIcon: Icon(Icons.menu_book),
-            label: 'Learn',
+            label: context.l10n.learnTitle,
           ),
           NavigationDestination(
             icon: Icon(Icons.more_horiz),
             selectedIcon: Icon(Icons.more_horiz),
-            label: 'More',
+            label: context.l10n.moreTitle,
           ),
         ],
       ),

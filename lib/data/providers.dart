@@ -1,14 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import '../content/models.dart';
 import '../content/providers.dart';
 import '../domain/alerts/alert_engine.dart';
 import '../domain/alerts/symptom_rules.dart';
+import '../features/shared/photos/directory_photo_store.dart';
+import '../features/shared/photos/photo_service.dart';
 import '../features/shared/reminders/reminder_service.dart';
 import 'backup/backup_service.dart';
 import 'db/app_database.dart';
+import 'db/tables.dart';
 import 'repositories/appointment_repository.dart';
 import 'repositories/medication_repository.dart';
+import 'repositories/photo_repository.dart';
 import 'repositories/pregnancy_repository.dart';
 import 'repositories/settings_repository.dart';
 import 'repositories/symptom_repository.dart';
@@ -96,7 +105,36 @@ final appointmentRepositoryProvider = Provider<AppointmentRepository>((ref) {
   return AppointmentRepository(ref.watch(appDatabaseProvider));
 });
 
-final backupServiceProvider = Provider<BackupService>((ref) => BackupService());
+final photoRepositoryProvider = Provider<PhotoRepository>((ref) {
+  return PhotoRepository(ref.watch(appDatabaseProvider));
+});
+
+/// Photo files live in app-private storage (not Documents), so the media
+/// scanner and other apps never see them.
+final photoStorageDirProvider = Provider<Future<Directory> Function()>((ref) {
+  return () async {
+    final dir = await getApplicationSupportDirectory();
+    return Directory(p.join(dir.path, 'photos'));
+  };
+});
+
+final photoServiceProvider = Provider<PhotoService>((ref) {
+  return PhotoService(ImagePicker(), ref.watch(photoStorageDirProvider));
+});
+
+/// Photos of one category, oldest first.
+final photosProvider = StreamProvider.family<List<Photo>, PhotoCategory>((
+  ref,
+  category,
+) {
+  return ref.watch(photoRepositoryProvider).watchByCategory(category);
+});
+
+final backupServiceProvider = Provider<BackupService>(
+  (ref) => BackupService(
+    photoStore: DirectoryPhotoStore(ref.watch(photoStorageDirProvider)),
+  ),
+);
 
 /// Open appointments from now onward, soonest first.
 final upcomingAppointmentsProvider = StreamProvider<List<Appointment>>((ref) {

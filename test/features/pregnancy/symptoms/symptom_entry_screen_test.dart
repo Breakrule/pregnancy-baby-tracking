@@ -14,6 +14,8 @@ import 'package:nurture/domain/alerts/symptom_rules.dart';
 import 'package:nurture/features/pregnancy/symptoms/symptom_entry_screen.dart';
 import 'package:nurture/features/shared/app_lock/auth_service.dart';
 
+import '../../../test_app.dart';
+
 /// Hand-built content bundle to avoid loading real assets in widget tests.
 final _testBundle = ContentBundle(
   weeks: const [],
@@ -59,7 +61,7 @@ void main() {
           ),
           contentProvider.overrideWith((ref) async => _testBundle),
         ],
-        child: const MaterialApp(home: SymptomEntryScreen()),
+        child: localizedApp(const SymptomEntryScreen()),
       ),
     );
     await tester.pumpAndSettle();
@@ -118,6 +120,7 @@ void main() {
           contentProvider.overrideWith((ref) async => _testBundle),
         ],
         child: MaterialApp(
+          localizationsDelegates: testLocalizationDelegates,
           home: Navigator(
             onGenerateRoute: (_) =>
                 MaterialPageRoute(builder: (_) => const SymptomEntryScreen()),
@@ -191,7 +194,7 @@ void main() {
           contentProvider.overrideWith((ref) async => _testBundle),
           alertEngineProvider.overrideWithValue(warningEngine),
         ],
-        child: const MaterialApp(home: SymptomEntryScreen()),
+        child: localizedApp(const SymptomEntryScreen()),
       ),
     );
     await tester.pumpAndSettle();

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n.dart';
+import '../../../core/motion/pressable.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 
@@ -25,21 +27,23 @@ class MedicationsScreen extends ConsumerWidget {
     final medsAsync = ref.watch(activeMedsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Medications')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/track/medications/new'),
-        child: const Icon(Icons.add),
+      appBar: AppBar(title: Text(context.l10n.medicationsTitle)),
+      floatingActionButton: PressableScale(
+        child: FloatingActionButton(
+          onPressed: () => context.push('/track/medications/new'),
+          child: const Icon(Icons.add),
+        ),
       ),
       body: medsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (meds) {
           if (meds.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: Text(
-                  'No medications yet.\nTap + to add one.',
+                  context.l10n.medicationsNoEntries,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -95,14 +99,14 @@ class _MedTile extends ConsumerWidget {
                 children: [
                   const Icon(Icons.alarm, size: 14),
                   const SizedBox(width: 4),
-                  Text('Reminder ${med.reminderTime}'),
+                  Text(context.l10n.medicationReminderAt(med.reminderTime!)),
                 ],
               ),
             ),
         ],
       ),
       secondary: IconButton(
-        tooltip: 'Stop this medication',
+        tooltip: context.l10n.medicationStopTooltip,
         icon: const Icon(Icons.delete_outline),
         onPressed: () => _deactivate(context, ref),
       ),

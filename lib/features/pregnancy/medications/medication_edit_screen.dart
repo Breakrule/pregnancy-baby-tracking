@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n.dart';
 import '../../../data/providers.dart';
 
 class MedicationEditScreen extends ConsumerStatefulWidget {
@@ -64,7 +65,7 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
 
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _nameError = 'Enter a medication name');
+      setState(() => _nameError = context.l10n.medicationNameError);
       return;
     }
 
@@ -106,7 +107,7 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Medication')),
+      appBar: AppBar(title: Text(context.l10n.addMedicationTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -117,7 +118,7 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
               controller: _nameController,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                labelText: 'Medication name',
+                labelText: context.l10n.medicationNameLabel,
                 border: const OutlineInputBorder(),
                 errorText: _nameError,
               ),
@@ -125,10 +126,10 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: _doseController,
-              decoration: const InputDecoration(
-                labelText: 'Dose (optional)',
-                border: OutlineInputBorder(),
-                hintText: 'e.g. 400 mcg',
+              decoration: InputDecoration(
+                labelText: context.l10n.medicationDoseOptional,
+                border: const OutlineInputBorder(),
+                hintText: context.l10n.medicationDoseHint,
               ),
             ),
             const SizedBox(height: 8),
@@ -138,7 +139,7 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
               title: Text(
                 '${_startDate.year}-${_startDate.month.toString().padLeft(2, '0')}-${_startDate.day.toString().padLeft(2, '0')}',
               ),
-              subtitle: const Text('Start date'),
+              subtitle: Text(context.l10n.medicationStartDate),
               onTap: _pickStartDate,
             ),
             ListTile(
@@ -146,14 +147,16 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
               leading: const Icon(Icons.alarm),
               title: Text(
                 _reminderTime == null
-                    ? 'No daily reminder'
-                    : 'Reminder at ${_formatReminder(_reminderTime!)}',
+                    ? context.l10n.medicationNoReminder
+                    : context.l10n.medicationReminderAt(
+                        _formatReminder(_reminderTime!),
+                      ),
               ),
-              subtitle: const Text('Tap to set a daily reminder'),
+              subtitle: Text(context.l10n.medicationSetReminder),
               trailing: _reminderTime == null
                   ? null
                   : IconButton(
-                      tooltip: 'Remove reminder',
+                      tooltip: context.l10n.medicationRemoveReminderTooltip,
                       icon: const Icon(Icons.close),
                       onPressed: () => setState(() => _reminderTime = null),
                     ),
@@ -162,7 +165,7 @@ class _MedicationEditScreenState extends ConsumerState<MedicationEditScreen> {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: _saving ? null : _save,
-              child: const Text('Save'),
+              child: Text(context.l10n.commonSave),
             ),
           ],
         ),

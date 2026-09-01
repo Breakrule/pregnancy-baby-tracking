@@ -10,6 +10,8 @@ import 'package:nurture/data/providers.dart';
 import 'package:nurture/features/pregnancy/home/home_screen.dart';
 import 'package:nurture/features/shared/app_lock/auth_service.dart';
 
+import '../../../test_app.dart';
+
 void main() {
   testWidgets('home screen shows gestational age and countdown', (
     tester,
@@ -58,7 +60,7 @@ void main() {
           ),
           contentProvider.overrideWith((ref) async => mockBundle),
         ],
-        child: MaterialApp(home: HomeScreen(now: fixedNow)),
+        child: localizedApp(HomeScreen(now: fixedNow)),
       ),
     );
     await tester.pumpAndSettle();

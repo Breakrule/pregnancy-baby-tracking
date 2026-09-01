@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n.dart';
 import '../../../core/units.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/tables.dart';
@@ -82,11 +83,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text),
-            child: const Text('OK'),
+            child: Text(context.l10n.commonOk),
           ),
         ],
       ),
@@ -100,8 +101,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (!mounted) return null;
       first = await _pinDialog(
         title: first == null
-            ? 'Choose a 6-digit PIN'
-            : 'PINs did not match. Try again',
+            ? context.l10n.pinChooseTitle
+            : context.l10n.pinMismatchTitle,
       );
       if (first == null) return null;
       if (!RegExp(r'^\d{6}$').hasMatch(first)) {
@@ -109,7 +110,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         continue;
       }
       if (!mounted) return null;
-      second = await _pinDialog(title: 'Repeat the PIN');
+      second = await _pinDialog(title: context.l10n.pinRepeatTitle);
       if (second == null) return null;
       if (first != second) {
         second = null;
@@ -121,7 +122,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<String?> _promptVerifyPin() async {
     while (true) {
       if (!mounted) return null;
-      final pin = await _pinDialog(title: 'Enter your current PIN');
+      final pin = await _pinDialog(title: context.l10n.pinEnterCurrentTitle);
       if (pin == null) return null;
       if (!RegExp(r'^\d{6}$').hasMatch(pin)) continue;
       return pin;
@@ -195,7 +196,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           if (mounted) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('Incorrect PIN')));
+            ).showSnackBar(SnackBar(content: Text(context.l10n.pinIncorrect)));
           }
           return;
         }
@@ -217,6 +218,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _isTogglingLock = false;
       if (!succeeded) ref.invalidate(settingsProvider);
     }
+  }
+
+  Future<void> _onLocaleChanged(String value) async {
+    await ref
+        .read(settingsRepositoryProvider)
+        .update(SettingsRowsCompanion(locale: Value(value)));
+    ref.invalidate(settingsProvider);
   }
 
   Future<void> _editPregnancyDetails(Pregnancy active) async {
@@ -245,7 +253,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           context: context,
           builder: (ctx) => StatefulBuilder(
             builder: (ctx, setDialogState) => AlertDialog(
-              title: const Text('Pregnancy details'),
+              title: Text(context.l10n.settingsPregnancyDetails),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -253,7 +261,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ListTile(
                       title: Text(
                         dueDateController.text.isEmpty
-                            ? 'Select due date'
+                            ? context.l10n.settingsSelectDueDate
                             : dueDateController.text,
                       ),
                       leading: const Icon(Icons.calendar_today),
@@ -277,8 +285,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           _bloodTypes.contains(bloodTypeController.text)
                           ? bloodTypeController.text
                           : null,
-                      decoration: const InputDecoration(
-                        labelText: 'Blood type',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.setupBloodType,
                       ),
                       items: _bloodTypes
                           .map(
@@ -290,26 +298,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     TextField(
                       controller: clinicNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Clinic name',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.setupClinicName,
                       ),
                     ),
                     TextField(
                       controller: clinicPhoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Clinic phone',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.setupClinicPhone,
                       ),
                     ),
                     TextField(
                       controller: hospitalNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Hospital name',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.setupHospitalName,
                       ),
                     ),
                     TextField(
                       controller: hospitalAddressController,
-                      decoration: const InputDecoration(
-                        labelText: 'Hospital address',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.setupHospitalAddress,
                       ),
                     ),
                   ],
@@ -318,11 +326,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.commonCancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Save'),
+                  child: Text(context.l10n.commonSave),
                 ),
               ],
             ),
@@ -387,18 +395,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final pregnancyAsync = ref.watch(activePregnancyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: settingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (settings) => ListView(
           children: [
+            // ── Language section ─────────────────────────────────────
+            _SectionHeader(context.l10n.settingsLanguageSection),
+            RadioGroup<String>(
+              groupValue: settings.locale,
+              onChanged: (v) {
+                if (v != null) _onLocaleChanged(v);
+              },
+              child: Column(
+                children: [
+                  RadioListTile<String>(
+                    key: const Key('language-en'),
+                    title: Text(context.l10n.languageEnglish),
+                    value: 'en',
+                  ),
+                  RadioListTile<String>(
+                    key: const Key('language-id'),
+                    title: Text(context.l10n.languageIndonesian),
+                    value: 'id',
+                  ),
+                ],
+              ),
+            ),
+
             // ── Units section ────────────────────────────────────────
-            const _SectionHeader('Units'),
+            _SectionHeader(context.l10n.settingsUnitsSection),
             DropdownButtonFormField<WeightDisplay>(
               key: const Key('weight-unit-dropdown'),
               initialValue: _toWeightDisplay(settings.weightUnit),
-              decoration: const InputDecoration(labelText: 'Weight'),
+              decoration: InputDecoration(
+                labelText: context.l10n.settingsWeightUnit,
+              ),
               items: const [
                 DropdownMenuItem(value: WeightDisplay.kg, child: Text('kg')),
                 DropdownMenuItem(value: WeightDisplay.lb, child: Text('lb')),
@@ -410,7 +443,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             DropdownButtonFormField<LengthDisplay>(
               key: const Key('length-unit-dropdown'),
               initialValue: _toLengthDisplay(settings.lengthUnit),
-              decoration: const InputDecoration(labelText: 'Length / Height'),
+              decoration: InputDecoration(
+                labelText: context.l10n.settingsLengthUnit,
+              ),
               items: const [
                 DropdownMenuItem(value: LengthDisplay.cm, child: Text('cm')),
                 DropdownMenuItem(value: LengthDisplay.inch, child: Text('in')),
@@ -422,7 +457,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             DropdownButtonFormField<GlucoseDisplay>(
               key: const Key('glucose-unit-dropdown'),
               initialValue: _toGlucoseDisplay(settings.glucoseUnit),
-              decoration: const InputDecoration(labelText: 'Glucose'),
+              decoration: InputDecoration(
+                labelText: context.l10n.settingsGlucoseUnit,
+              ),
               items: const [
                 DropdownMenuItem(
                   value: GlucoseDisplay.mgdl,
@@ -439,44 +476,49 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ).withPadding(),
 
             // ── App lock section ─────────────────────────────────────
-            const _SectionHeader('Security'),
+            _SectionHeader(context.l10n.settingsSecuritySection),
             SwitchListTile(
               key: const Key('app-lock-switch'),
-              title: const Text('App lock'),
+              title: Text(context.l10n.settingsAppLock),
               subtitle: Text(
-                settings.lockEnabled ? 'PIN protection enabled' : 'Off',
+                settings.lockEnabled
+                    ? context.l10n.settingsPinEnabled
+                    : context.l10n.settingsOff,
               ),
               value: settings.lockEnabled,
               onChanged: (_) => _toggleLock(settings.lockEnabled),
             ),
 
             // ── Data section ─────────────────────────────────────────
-            const _SectionHeader('Data'),
+            _SectionHeader(context.l10n.settingsDataSection),
             ListTile(
               key: const Key('backup-tile'),
               leading: const Icon(Icons.backup),
-              title: const Text('Backup & restore'),
-              subtitle: const Text('Encrypted file on your device'),
+              title: Text(context.l10n.settingsBackupTitle),
+              subtitle: Text(context.l10n.settingsBackupSubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/more/settings/backup'),
             ),
 
             // ── Pregnancy details section ────────────────────────────
-            const _SectionHeader('Pregnancy'),
+            _SectionHeader(context.l10n.settingsPregnancySection),
             pregnancyAsync.when(
-              loading: () => const ListTile(title: Text('Loading...')),
-              error: (e, _) => ListTile(title: Text('Error: $e')),
+              loading: () => ListTile(title: Text(context.l10n.commonLoading)),
+              error: (e, _) =>
+                  ListTile(title: Text(context.l10n.commonError('$e'))),
               data: (active) {
                 if (active == null) {
-                  return const ListTile(
-                    title: Text('Pregnancy details'),
-                    subtitle: Text('Complete setup first'),
+                  return ListTile(
+                    title: Text(context.l10n.settingsPregnancyDetails),
+                    subtitle: Text(context.l10n.settingsCompleteSetupFirst),
                     enabled: false,
                   );
                 }
                 return ListTile(
-                  title: const Text('Pregnancy details'),
-                  subtitle: Text('Due: ${_formatDate(active.dueDate)}'),
+                  title: Text(context.l10n.settingsPregnancyDetails),
+                  subtitle: Text(
+                    context.l10n.settingsDueDate(_formatDate(active.dueDate)),
+                  ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _editPregnancyDetails(active),
                 );

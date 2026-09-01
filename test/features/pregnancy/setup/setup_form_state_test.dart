@@ -8,7 +8,10 @@ void main() {
 
     test('rejects null', () {
       final state = SetupFormState();
-      expect(state.validateReferenceDate(null, today: today), 'Choose a date');
+      expect(
+        state.validateReferenceDate(null, today: today),
+        SetupValidationIssue.dateMissing,
+      );
     });
 
     test('rejects future date', () {
@@ -16,7 +19,7 @@ void main() {
       final future = today.add(const Duration(days: 1));
       expect(
         state.validateReferenceDate(future, today: today),
-        'Date must be in the past',
+        SetupValidationIssue.dateInFuture,
       );
     });
 
@@ -25,7 +28,7 @@ void main() {
       final old = today.subtract(const Duration(days: 321));
       expect(
         state.validateReferenceDate(old, today: today),
-        'Date is more than 45 weeks ago',
+        SetupValidationIssue.dateTooOld,
       );
     });
 
@@ -39,17 +42,17 @@ void main() {
   group('validateWeight', () {
     test('rejects null', () {
       final state = SetupFormState();
-      expect(state.validateWeight(null), 'Enter your pre-pregnancy weight');
+      expect(state.validateWeight(null), SetupValidationIssue.weightMissing);
     });
 
     test('rejects 500', () {
       final state = SetupFormState();
-      expect(state.validateWeight(500), 'Weight must be between 30 and 250 kg');
+      expect(state.validateWeight(500), SetupValidationIssue.weightOutOfRange);
     });
 
     test('rejects 29', () {
       final state = SetupFormState();
-      expect(state.validateWeight(29), 'Weight must be between 30 and 250 kg');
+      expect(state.validateWeight(29), SetupValidationIssue.weightOutOfRange);
     });
 
     test('accepts 62', () {
@@ -61,23 +64,17 @@ void main() {
   group('validateHeight', () {
     test('rejects null', () {
       final state = SetupFormState();
-      expect(state.validateHeight(null), 'Enter your height');
+      expect(state.validateHeight(null), SetupValidationIssue.heightMissing);
     });
 
     test('rejects 100', () {
       final state = SetupFormState();
-      expect(
-        state.validateHeight(100),
-        'Height must be between 120 and 220 cm',
-      );
+      expect(state.validateHeight(100), SetupValidationIssue.heightOutOfRange);
     });
 
     test('rejects 230', () {
       final state = SetupFormState();
-      expect(
-        state.validateHeight(230),
-        'Height must be between 120 and 220 cm',
-      );
+      expect(state.validateHeight(230), SetupValidationIssue.heightOutOfRange);
     });
 
     test('accepts 165', () {

@@ -2,8 +2,26 @@ import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nurture/data/backup/backup_service.dart';
+import 'package:nurture/data/backup/photo_store.dart';
 import 'package:nurture/data/db/app_database.dart';
 import 'package:nurture/data/db/tables.dart';
+import 'package:nurture/features/shared/photos/directory_photo_store.dart';
+
+class _MemoryPhotoStore implements PhotoStore {
+  final Map<String, Uint8List> files = {};
+
+  @override
+  Future<List<StoredFile>> readAll() async => [
+    for (final entry in files.entries)
+      StoredFile(name: entry.key, bytes: entry.value),
+  ];
+
+  @override
+  Future<void> clear() async => files.clear();
+
+  @override
+  Future<void> write(String name, Uint8List bytes) async => files[name] = bytes;
+}
 
 void main() {
   Future<AppDatabase> seededDb() async {
@@ -144,5 +162,65 @@ void main() {
     );
     await source.close();
     await target.close();
+  });
+
+  test('format 2 round-trip restores photo rows and files', () async {
+    final source = await seededDb();
+    await source
+        .into(source.photos)
+        .insert(
+          PhotosCompanion.insert(
+            category: PhotoCategory.belly,
+            takenAt: DateTime.utc(2026, 3, 5),
+            fileName: 'a.jpg',
+            gestationalDays: const Value(63),
+          ),
+        );
+    final sourceStore = _MemoryPhotoStore()
+      ..files['a.jpg'] = Uint8List.fromList([1, 2, 3, 4])
+      ..files['a_thumb.jpg'] = Uint8List.fromList([9, 9]);
+
+    final service = BackupService(photoStore: sourceStore);
+    final bytes = await service.export(source, passphrase: 's3cret');
+    await source.close();
+
+    final target = AppDatabase(NativeDatabase.memory());
+    final targetStore = _MemoryPhotoStore();
+    await BackupService(
+      photoStore: targetStore,
+    ).import(target, bytes, passphrase: 's3cret');
+
+    final photos = await target.select(target.photos).get();
+    expect(photos.single.fileName, 'a.jpg');
+    expect(photos.single.gestationalDays, 63);
+    // Other tables still round-trip inside the zip.
+    expect((await target.select(target.pregnancies).get()), hasLength(1));
+    // Files restored byte-for-byte.
+    expect(targetStore.files['a.jpg'], [1, 2, 3, 4]);
+    expect(targetStore.files['a_thumb.jpg'], [9, 9]);
+    await target.close();
+  });
+
+  test('legacy format 1 backups still import', () async {
+    final source = await seededDb();
+    final legacyService = BackupService(formatOverride: 1);
+    final bytes = await legacyService.export(source, passphrase: 'old');
+    await source.close();
+
+    final target = AppDatabase(NativeDatabase.memory());
+    await BackupService().import(target, bytes, passphrase: 'old');
+    expect((await target.select(target.pregnancies).get()), hasLength(1));
+    expect((await target.select(target.weightEntries).get()), hasLength(1));
+    await target.close();
+  });
+
+  test('DirectoryPhotoStore rejects unsafe file names', () async {
+    final store = DirectoryPhotoStore(() async => throw StateError('unused'));
+    expect(() => store.write('../evil.jpg', Uint8List(1)), throwsArgumentError);
+    expect(
+      () => store.write('photos/evil.jpg', Uint8List(1)),
+      throwsArgumentError,
+    );
+    expect(() => store.write('.hidden', Uint8List(1)), throwsArgumentError);
   });
 }

@@ -12,6 +12,8 @@ enum SymptomSeverity { mild, moderate, severe }
 
 enum AppointmentStatus { upcoming, completed, cancelled }
 
+enum PhotoCategory { belly, ultrasound, baby }
+
 class Pregnancies extends Table {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get lmpDate => dateTime()();
@@ -39,6 +41,9 @@ class SettingsRows extends Table {
       textEnum<LengthUnit>().withDefault(const Constant('cm'))();
   TextColumn get glucoseUnit =>
       textEnum<GlucoseUnit>().withDefault(const Constant('mgdl'))();
+
+  /// BCP-47 language tag for the UI ('en', 'id').
+  TextColumn get locale => text().withDefault(const Constant('en'))();
 
   @override
   Set<Column<Object>> get primaryKey => {id};
@@ -87,4 +92,19 @@ class Appointments extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get status =>
       textEnum<AppointmentStatus>().withDefault(const Constant('upcoming'))();
+}
+
+/// Photo journal entries. Files themselves live in app-private storage
+/// (`photos/<fileName>`); only metadata is stored here.
+class Photos extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get category => textEnum<PhotoCategory>()();
+  DateTimeColumn get takenAt => dateTime()();
+  TextColumn get fileName => text()();
+
+  /// Gestational age at the time of the photo, for belly/ultrasound
+  /// categories. Null for baby photos.
+  IntColumn get gestationalDays => integer().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

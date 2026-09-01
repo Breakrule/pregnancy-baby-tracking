@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../content/providers.dart';
+import '../../../core/l10n.dart';
 import '../../../core/widgets/disclaimer_footer.dart';
 import 'content_widgets.dart';
 
@@ -13,18 +14,18 @@ class DangerSignsScreen extends ConsumerWidget {
     final bundleAsync = ref.watch(contentProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Danger Signs')),
+      appBar: AppBar(title: Text(context.l10n.dangerSignsTitle)),
       body: bundleAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (bundle) {
           if (bundle.redFlags.isEmpty) {
-            return const Center(child: Text('No danger signs loaded.'));
+            return Center(child: Text(context.l10n.dangerSignsNoneLoaded));
           }
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const ContentSectionHeader(title: 'When to call your provider'),
+              ContentSectionHeader(title: context.l10n.homeWhenToCallProvider),
               const SizedBox(height: 8),
               ...bundle.redFlags.map(
                 (flag) => Padding(

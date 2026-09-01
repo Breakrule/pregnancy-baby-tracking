@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 import 'package:encrypt/encrypt.dart' as enc;
 
 import '../db/app_database.dart';
+import 'photo_store.dart';
 
 class BackupException implements Exception {
   BackupException(this.message);
@@ -17,23 +19,59 @@ class BackupException implements Exception {
 }
 
 /// Exports and restores the whole database as an AES-256-CBC encrypted
-/// JSON envelope. Everything stays on-device; the file is written through
-/// the platform file picker.
+/// envelope. Everything stays on-device; the file is written through the
+/// platform file picker.
 ///
-/// Envelope format: UTF-8 JSON `{app, schemaVersion, exportedAt, salt, iv,
-/// checksum, payload}` where `payload` is the serialized tables, encrypted
-/// with key = SHA-256(passphrase:salt); `checksum` is SHA-256 of the
-/// plaintext payload and verified after decryption.
+/// Envelope format: UTF-8 JSON `{app, [format], schemaVersion, exportedAt,
+/// salt, iv, checksum, payload}` where `checksum` is SHA-256 of the
+/// plaintext payload bytes, verified after decryption.
+///
+/// - Format 1 (legacy, no `format` key): `payload` is the encrypted JSON
+///   serialization of the tables.
+/// - Format 2 (current): `payload` is an encrypted ZIP containing
+///   `db.json` (the same table JSON) plus every photo file under
+///   `photos/`.
 class BackupService {
-  BackupService({this.schemaVersionOverride});
+  BackupService({
+    this.schemaVersionOverride,
+    this.photoStore,
+    this.formatOverride,
+  });
 
   /// Test seam: force a fake schema version into the envelope.
   final int? schemaVersionOverride;
 
+  /// Photo file storage. When null, exports contain no photos and imports
+  /// restore only the database.
+  final PhotoStore? photoStore;
+
+  /// Test seam: force the envelope format (1 = legacy JSON payload).
+  final int? formatOverride;
+
+  static const currentFormat = 2;
+
   Future<Uint8List> export(AppDatabase db, {required String passphrase}) async {
-    final payload = await _serialize(db);
-    final payloadString = jsonEncode(payload);
-    final checksum = sha256.convert(utf8.encode(payloadString)).toString();
+    final format = formatOverride ?? currentFormat;
+    final dbJson = utf8.encode(jsonEncode(await _serialize(db)));
+
+    Uint8List payloadBytes;
+    if (format >= 2) {
+      final archive = Archive()
+        ..addFile(ArchiveFile('db.json', dbJson.length, dbJson));
+      final store = photoStore;
+      if (store != null) {
+        for (final file in await store.readAll()) {
+          archive.addFile(
+            ArchiveFile('photos/${file.name}', file.bytes.length, file.bytes),
+          );
+        }
+      }
+      payloadBytes = Uint8List.fromList(ZipEncoder().encode(archive));
+    } else {
+      payloadBytes = Uint8List.fromList(dbJson);
+    }
+
+    final checksum = sha256.convert(payloadBytes).toString();
 
     final random = Random.secure();
     final saltBytes = Uint8List.fromList(
@@ -46,10 +84,11 @@ class BackupService {
     final iv = base64Encode(ivBytes);
 
     final cipher = _cipherFor(passphrase, salt);
-    final encrypted = cipher.encrypt(payloadString, iv: enc.IV(ivBytes));
+    final encrypted = cipher.encryptBytes(payloadBytes, iv: enc.IV(ivBytes));
 
     final envelope = jsonEncode({
       'app': 'nurture',
+      if (format != 1) 'format': format,
       'schemaVersion': schemaVersionOverride ?? db.schemaVersion,
       'exportedAt': DateTime.now().toUtc().toIso8601String(),
       'salt': salt,
@@ -81,33 +120,73 @@ class BackupService {
         'Update the app first.',
       );
     }
+    final format = (envelope['format'] as int?) ?? 1;
+    if (format > currentFormat) {
+      throw BackupException(
+        'Backup uses a newer file format ($format). '
+        'Update the app first.',
+      );
+    }
 
     final salt = envelope['salt'] as String;
     final iv = envelope['iv'] as String;
     final cipher = _cipherFor(passphrase, salt);
 
-    String payloadString;
+    Uint8List payloadBytes;
     try {
-      payloadString = cipher.decrypt64(
-        envelope['payload'] as String,
-        iv: enc.IV(base64Decode(iv)),
+      payloadBytes = Uint8List.fromList(
+        cipher.decryptBytes(
+          enc.Encrypted(base64Decode(envelope['payload'] as String)),
+          iv: enc.IV(base64Decode(iv)),
+        ),
       );
     } catch (_) {
       throw BackupException('Could not decrypt. Wrong passphrase?');
     }
 
-    final checksum = sha256.convert(utf8.encode(payloadString)).toString();
+    final checksum = sha256.convert(payloadBytes).toString();
     if (checksum != envelope['checksum']) {
       throw BackupException('Backup file is corrupted.');
     }
 
-    Map<String, dynamic> payload;
+    if (format == 1) {
+      await _restore(db, _decodeDbJson(payloadBytes));
+      return;
+    }
+
+    Archive archive;
     try {
-      payload = jsonDecode(payloadString) as Map<String, dynamic>;
+      archive = ZipDecoder().decodeBytes(payloadBytes);
     } catch (_) {
       throw BackupException('Backup file is corrupted.');
     }
-    await _restore(db, payload);
+    final dbFile = archive.findFile('db.json');
+    if (dbFile == null) {
+      throw BackupException('Backup file is corrupted.');
+    }
+    await _restore(
+      db,
+      _decodeDbJson(Uint8List.fromList(dbFile.content as List<int>)),
+    );
+
+    final store = photoStore;
+    if (store != null) {
+      await store.clear();
+      for (final file in archive.files) {
+        const prefix = 'photos/';
+        if (!file.name.startsWith(prefix)) continue;
+        final name = file.name.substring(prefix.length);
+        await store.write(name, Uint8List.fromList(file.content as List<int>));
+      }
+    }
+  }
+
+  Map<String, dynamic> _decodeDbJson(Uint8List bytes) {
+    try {
+      return jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
+    } catch (_) {
+      throw BackupException('Backup file is corrupted.');
+    }
   }
 
   enc.Encrypter _cipherFor(String passphrase, String salt) {
@@ -126,6 +205,7 @@ class BackupService {
       'medications': await _rows(db.select(db.medications)),
       'med_logs': await _rows(db.select(db.medLogs)),
       'appointments': await _rows(db.select(db.appointments)),
+      'photos': await _rows(db.select(db.photos)),
     };
   }
 
@@ -160,6 +240,7 @@ class BackupService {
       await _clearTable(db, db.symptoms);
       await _clearTable(db, db.weightEntries);
       await _clearTable(db, db.appointments);
+      await _clearTable(db, db.photos);
       await _clearTable(db, db.pregnancies);
       await _clearTable(db, db.settingsRows);
 
@@ -190,6 +271,7 @@ class BackupService {
         db.appointments,
         payload['appointments'] as List<dynamic>?,
       );
+      await _insertAll(db, db.photos, payload['photos'] as List<dynamic>?);
     });
   }
 

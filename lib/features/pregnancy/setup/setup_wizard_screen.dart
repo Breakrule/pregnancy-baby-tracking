@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
 import 'setup_form_state.dart';
@@ -63,6 +64,20 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
     }
   }
 
+  /// Maps a locale-neutral validation issue to the localized message.
+  String _issueText(SetupValidationIssue issue) {
+    final l10n = context.l10n;
+    return switch (issue) {
+      SetupValidationIssue.dateMissing => l10n.setupErrChooseDate,
+      SetupValidationIssue.dateInFuture => l10n.setupErrDateInPast,
+      SetupValidationIssue.dateTooOld => l10n.setupErrDateTooOld,
+      SetupValidationIssue.weightMissing => l10n.setupErrEnterWeight,
+      SetupValidationIssue.weightOutOfRange => l10n.setupErrWeightRange,
+      SetupValidationIssue.heightMissing => l10n.setupErrEnterHeight,
+      SetupValidationIssue.heightOutOfRange => l10n.setupErrHeightRange,
+    };
+  }
+
   bool _validateStep(int step) {
     switch (step) {
       case 0:
@@ -73,7 +88,7 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
         if (err != null) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(err)));
+          ).showSnackBar(SnackBar(content: Text(_issueText(err))));
           return false;
         }
         return true;
@@ -86,14 +101,14 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
         if (wErr != null) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(wErr)));
+          ).showSnackBar(SnackBar(content: Text(_issueText(wErr))));
           return false;
         }
         final hErr = _form.validateHeight(h);
         if (hErr != null) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(hErr)));
+          ).showSnackBar(SnackBar(content: Text(_issueText(hErr))));
           return false;
         }
         return true;
@@ -160,7 +175,7 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Step ${_currentStep + 1} of 3'),
+        title: Text(context.l10n.setupStepOf(_currentStep + 1)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator(value: (_currentStep + 1) / 3),
@@ -180,7 +195,11 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
           padding: const EdgeInsets.all(16),
           child: FilledButton(
             onPressed: (_currentStep == 2 && _submitting) ? null : _next,
-            child: Text(_currentStep == 2 ? 'Start tracking' : 'Next'),
+            child: Text(
+              _currentStep == 2
+                  ? context.l10n.setupStartTracking
+                  : context.l10n.setupNext,
+            ),
           ),
         ),
       ),
@@ -193,20 +212,20 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Welcome to Nurture',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          Text(
+            context.l10n.setupWelcome,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           SegmentedButton<ConceptionSource>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: ConceptionSource.lmp,
-                label: Text('Last period (LMP)'),
+                label: Text(context.l10n.setupSourceLmp),
               ),
               ButtonSegment(
                 value: ConceptionSource.ultrasound,
-                label: Text('Ultrasound due date'),
+                label: Text(context.l10n.setupSourceUltrasound),
               ),
             ],
             selected: {_form.source},
@@ -223,7 +242,7 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
             icon: const Icon(Icons.calendar_today),
             label: Text(
               _form.referenceDate == null
-                  ? 'Choose a date'
+                  ? context.l10n.setupChooseDate
                   : '${_form.referenceDate!.year}-${_form.referenceDate!.month.toString().padLeft(2, '0')}-${_form.referenceDate!.day.toString().padLeft(2, '0')}',
             ),
           ),
@@ -238,22 +257,22 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'About you',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            context.l10n.setupAboutYou,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           TextFormField(
             controller: _weightCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Pre-pregnancy weight (kg)',
+            decoration: InputDecoration(
+              labelText: context.l10n.setupPrePregnancyWeight,
             ),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _heightCtrl,
-            decoration: const InputDecoration(labelText: 'Height (cm)'),
+            decoration: InputDecoration(labelText: context.l10n.setupHeight),
             keyboardType: TextInputType.number,
           ),
         ],
@@ -267,14 +286,14 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Care team',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            context.l10n.setupCareTeam,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           DropdownButtonFormField<String>(
             initialValue: _form.bloodType,
-            decoration: const InputDecoration(labelText: 'Blood type'),
+            decoration: InputDecoration(labelText: context.l10n.setupBloodType),
             items: const [
               'A+',
               'A-',
@@ -291,22 +310,30 @@ class _SetupWizardScreenState extends ConsumerState<SetupWizardScreen> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _clinicNameCtrl,
-            decoration: const InputDecoration(labelText: 'Clinic name'),
+            decoration: InputDecoration(
+              labelText: context.l10n.setupClinicName,
+            ),
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _clinicPhoneCtrl,
-            decoration: const InputDecoration(labelText: 'Clinic phone'),
+            decoration: InputDecoration(
+              labelText: context.l10n.setupClinicPhone,
+            ),
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _hospitalNameCtrl,
-            decoration: const InputDecoration(labelText: 'Hospital name'),
+            decoration: InputDecoration(
+              labelText: context.l10n.setupHospitalName,
+            ),
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _hospitalAddressCtrl,
-            decoration: const InputDecoration(labelText: 'Hospital address'),
+            decoration: InputDecoration(
+              labelText: context.l10n.setupHospitalAddress,
+            ),
           ),
         ],
       ),

@@ -10,6 +10,10 @@ class ReminderService {
 
   final FlutterLocalNotificationsPlugin _plugin;
 
+  /// Last notification response received, including the one that launched
+  /// the app (delivered right after initialize).
+  NotificationResponse? _lastResponse;
+
   static const _channel = AndroidNotificationDetails(
     'medications',
     'Medication reminders',
@@ -29,11 +33,14 @@ class ReminderService {
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     final local = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(local));
+    tz.setLocalLocation(tz.getLocation(local.identifier));
     await _plugin.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
+      onDidReceiveNotificationResponse: (response) {
+        _lastResponse = response;
+      },
     );
   }
 
@@ -43,6 +50,15 @@ class ReminderService {
           AndroidFlutterLocalNotificationsPlugin
         >();
     await android?.requestNotificationsPermission();
+  }
+
+  /// The go_router location the app should navigate to when it was launched
+  /// from a notification (payload carries the route), or null otherwise.
+  /// Consumed once — later calls return null until the next response.
+  String? initialRoute() {
+    final response = _lastResponse;
+    _lastResponse = null;
+    return response?.payload;
   }
 
   /// Stable notification id derived from the medication id.
