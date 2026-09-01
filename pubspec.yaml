@@ -29,10 +29,19 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   flutter_lints: ^5.0.0
   build_runner: ^2.4.15
   drift_dev: ^2.26.0
   freezed: ^2.5.8
+
+# file_picker 8.x compiles against compileSdk 34; newer
+# flutter_plugin_android_lifecycle releases require compileSdk 36, which
+# breaks the :file_picker AAR metadata check. Pin a 34-compatible release
+# until file_picker is upgraded.
+dependency_overrides:
+  flutter_plugin_android_lifecycle: 2.0.24
 
 flutter:
   uses-material-design: true
