@@ -6,6 +6,7 @@ import '../domain/alerts/alert_engine.dart';
 import '../domain/alerts/symptom_rules.dart';
 import '../features/shared/reminders/reminder_service.dart';
 import 'db/app_database.dart';
+import 'repositories/appointment_repository.dart';
 import 'repositories/medication_repository.dart';
 import 'repositories/pregnancy_repository.dart';
 import 'repositories/settings_repository.dart';
@@ -89,3 +90,25 @@ final reminderServiceProvider = Provider<ReminderService>(
     'reminderServiceProvider must be overridden in main',
   ),
 );
+
+final appointmentRepositoryProvider = Provider<AppointmentRepository>((ref) {
+  return AppointmentRepository(ref.watch(appDatabaseProvider));
+});
+
+/// Open appointments from now onward, soonest first.
+final upcomingAppointmentsProvider = StreamProvider<List<Appointment>>((ref) {
+  return ref.watch(appointmentRepositoryProvider).watchUpcoming(DateTime.now());
+});
+
+/// Past and closed appointments, most recent first.
+final pastAppointmentsProvider = StreamProvider<List<Appointment>>((ref) {
+  return ref.watch(appointmentRepositoryProvider).watchPast(DateTime.now());
+});
+
+/// The soonest open appointment, or null — shown on the home Today card.
+final nextAppointmentProvider = StreamProvider<Appointment?>((ref) {
+  return ref
+      .watch(appointmentRepositoryProvider)
+      .watchUpcoming(DateTime.now())
+      .map((list) => list.isEmpty ? null : list.first);
+});

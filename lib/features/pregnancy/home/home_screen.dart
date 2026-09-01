@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
@@ -42,11 +43,6 @@ final medsDueTodayProvider = Provider.family<AsyncValue<String>, DateTime>((
     ),
   );
 });
-
-// replaced in Task 14
-final nextAppointmentProvider = StreamProvider<Appointment?>(
-  (ref) => Stream.value(null),
-);
 
 class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key, DateTime? now}) : now = now ?? DateTime.now();
@@ -100,11 +96,17 @@ class HomeScreen extends ConsumerWidget {
                   nextApptAsync.when(
                     loading: () => const Text('Loading appointments…'),
                     error: (e, _) => Text('Error: $e'),
-                    data: (appt) => Text(
-                      appt != null
-                          ? 'Next: ${appt.type} on ${appt.at.month}/${appt.at.day}'
-                          : 'No upcoming appointments',
-                    ),
+                    data: (appt) {
+                      if (appt == null) {
+                        return const Text('No upcoming appointments');
+                      }
+                      final local = appt.at.toLocal();
+                      return Text(
+                        'Next: ${appt.type} — '
+                        '${DateFormat('EEE, MMM d').format(local)} at '
+                        '${DateFormat('HH:mm').format(local)}',
+                      );
+                    },
                   ),
                   const SizedBox(height: 4),
                   medsLineAsync.when(

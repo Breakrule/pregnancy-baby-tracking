@@ -14,6 +14,7 @@ import '../features/pregnancy/symptoms/symptom_history_screen.dart';
 import '../features/pregnancy/track/track_screen.dart';
 import '../features/pregnancy/weight/weight_entry_screen.dart';
 import '../features/pregnancy/weight/weight_history_screen.dart';
+import '../features/pregnancy/appointments/appointment_edit_screen.dart';
 import '../features/pregnancy/appointments/appointments_screen.dart';
 import '../features/pregnancy/medications/medication_edit_screen.dart';
 import '../features/pregnancy/medications/medications_screen.dart';
@@ -101,6 +102,12 @@ GoRouter buildRouter({
                   GoRoute(
                     path: 'appointments',
                     builder: (c, s) => const AppointmentsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (c, s) => const AppointmentEditScreen(),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'medications',
