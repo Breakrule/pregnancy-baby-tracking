@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide isNotNull, Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/units.dart';
 import '../../../data/db/app_database.dart';
@@ -447,6 +448,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               value: settings.lockEnabled,
               onChanged: (_) => _toggleLock(settings.lockEnabled),
+            ),
+
+            // ── Data section ─────────────────────────────────────────
+            const _SectionHeader('Data'),
+            ListTile(
+              key: const Key('backup-tile'),
+              leading: const Icon(Icons.backup),
+              title: const Text('Backup & restore'),
+              subtitle: const Text('Encrypted file on your device'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/more/settings/backup'),
             ),
 
             // ── Pregnancy details section ────────────────────────────

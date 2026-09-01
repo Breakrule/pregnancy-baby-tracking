@@ -18,6 +18,7 @@ import '../features/pregnancy/appointments/appointment_edit_screen.dart';
 import '../features/pregnancy/appointments/appointments_screen.dart';
 import '../features/pregnancy/medications/medication_edit_screen.dart';
 import '../features/pregnancy/medications/medications_screen.dart';
+import '../features/shared/backup/backup_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 
 /// Notifies GoRouter to re-evaluate redirects when the active pregnancy
@@ -160,6 +161,12 @@ GoRouter buildRouter({
                   GoRoute(
                     path: 'settings',
                     builder: (context, state) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'backup',
+                        builder: (c, s) => const BackupScreen(),
+                      ),
+                    ],
                   ),
                 ],
               ),

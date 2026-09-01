@@ -5,6 +5,7 @@ import '../content/providers.dart';
 import '../domain/alerts/alert_engine.dart';
 import '../domain/alerts/symptom_rules.dart';
 import '../features/shared/reminders/reminder_service.dart';
+import 'backup/backup_service.dart';
 import 'db/app_database.dart';
 import 'repositories/appointment_repository.dart';
 import 'repositories/medication_repository.dart';
@@ -94,6 +95,8 @@ final reminderServiceProvider = Provider<ReminderService>(
 final appointmentRepositoryProvider = Provider<AppointmentRepository>((ref) {
   return AppointmentRepository(ref.watch(appDatabaseProvider));
 });
+
+final backupServiceProvider = Provider<BackupService>((ref) => BackupService());
 
 /// Open appointments from now onward, soonest first.
 final upcomingAppointmentsProvider = StreamProvider<List<Appointment>>((ref) {
