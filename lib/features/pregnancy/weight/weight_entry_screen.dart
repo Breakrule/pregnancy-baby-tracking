@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n.dart';
 import '../../../core/units.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
@@ -38,7 +39,7 @@ class _WeightEntryScreenState extends ConsumerState<WeightEntryScreen> {
   double? _validateAndConvert(String raw, WeightDisplay unit) {
     final parsed = double.tryParse(raw.trim());
     if (parsed == null) {
-      setState(() => _errorText = 'Enter a valid number');
+      setState(() => _errorText = context.l10n.weightEnterValidNumber);
       return null;
     }
 
@@ -48,8 +49,10 @@ class _WeightEntryScreenState extends ConsumerState<WeightEntryScreen> {
 
     if (kgValue < 30 || kgValue > 250) {
       setState(
-        () => _errorText =
-            'Weight must be between ${UnitConverter.formatWeight(30, unit)} and ${UnitConverter.formatWeight(250, unit)}',
+        () => _errorText = context.l10n.weightOutOfRange(
+          UnitConverter.formatWeight(30, unit),
+          UnitConverter.formatWeight(250, unit),
+        ),
       );
       return null;
     }
@@ -105,17 +108,17 @@ class _WeightEntryScreenState extends ConsumerState<WeightEntryScreen> {
     final settingsAsync = ref.watch(settingsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Log Weight')),
+      appBar: AppBar(title: Text(context.l10n.logWeightTitle)),
       body: settingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (settings) {
           final unit = settings.weightUnit == WeightUnit.lb
               ? WeightDisplay.lb
               : WeightDisplay.kg;
           final label = unit == WeightDisplay.lb
-              ? 'Weight (lb)'
-              : 'Weight (kg)';
+              ? context.l10n.weightLabelLb
+              : context.l10n.weightLabelKg;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -129,7 +132,7 @@ class _WeightEntryScreenState extends ConsumerState<WeightEntryScreen> {
                   title: Text(
                     '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
                   ),
-                  subtitle: const Text('Tap to change date'),
+                  subtitle: Text(context.l10n.tapToChangeDate),
                   onTap: _pickDate,
                 ),
                 const SizedBox(height: 8),
@@ -156,17 +159,17 @@ class _WeightEntryScreenState extends ConsumerState<WeightEntryScreen> {
                 TextField(
                   controller: _notesController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes (optional)',
-                    border: OutlineInputBorder(),
-                    hintText: 'Any additional details...',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.notesOptional,
+                    border: const OutlineInputBorder(),
+                    hintText: context.l10n.anyAdditionalDetails,
                   ),
                 ),
                 const SizedBox(height: 24),
 
                 FilledButton(
                   onPressed: _saving ? null : _save,
-                  child: const Text('Save'),
+                  child: Text(context.l10n.commonSave),
                 ),
               ],
             ),

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/l10n.dart';
+import '../settings/locale_provider.dart';
 
 /// Branded boot screen shown while the app bootstrap loads. Respects the
 /// platform's "remove animations" accessibility setting by rendering the
 /// final frame immediately.
 ///
 /// Rendered outside of any MaterialApp, so it provides its own
-/// [Directionality].
-class SplashScreen extends StatefulWidget {
+/// [Directionality] and [Localizations].
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   static const _coral = Color(0xFFE8836F);
   static const _teal = Color(0xFF4DB6AC);
@@ -86,63 +90,71 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [_coral, _teal],
-          ),
+      child: Localizations(
+        locale: ref.watch(localeProvider),
+        delegates: AppLocalizations.localizationsDelegates,
+        child: Builder(builder: _buildContent),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_coral, _teal],
         ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FadeTransition(
-                opacity: _logoOpacity,
-                child: ScaleTransition(
-                  scale: _logoScale,
-                  child: Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                    child: const Icon(
-                      Icons.favorite,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FadeTransition(
+              opacity: _logoOpacity,
+              child: ScaleTransition(
+                scale: _logoScale,
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.2),
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              FadeTransition(
-                opacity: _nameOpacity,
-                child: const Text(
-                  'Nurture',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
+                  child: const Icon(
+                    Icons.favorite,
+                    size: 48,
                     color: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              FadeTransition(
-                opacity: _taglineOpacity,
-                child: Text(
-                  'Growing with your family',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
+            ),
+            const SizedBox(height: 24),
+            FadeTransition(
+              opacity: _nameOpacity,
+              child: Text(
+                context.l10n.appTitle,
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                  color: Colors.white,
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            FadeTransition(
+              opacity: _taglineOpacity,
+              child: Text(
+                context.l10n.splashTagline,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -151,7 +163,7 @@ class _SplashScreenState extends State<SplashScreen>
 
 /// Minimal error screen for boot-time failures (e.g. the database cannot be
 /// opened). Offers a retry that re-runs the bootstrap.
-class BootstrapErrorScreen extends StatelessWidget {
+class BootstrapErrorScreen extends ConsumerWidget {
   const BootstrapErrorScreen({
     super.key,
     required this.error,
@@ -162,35 +174,43 @@ class BootstrapErrorScreen extends StatelessWidget {
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline, size: 48),
-                const SizedBox(height: 16),
-                const Text(
-                  'Something went wrong while starting the app.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$error',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 13),
-                ),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: onRetry,
-                  child: const Text('Try again'),
-                ),
-              ],
+      locale: ref.watch(localeProvider),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      home: Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 48),
+                  const SizedBox(height: 16),
+                  Text(
+                    context.l10n.splashBootstrapError,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$error',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: onRetry,
+                    child: Text(context.l10n.commonTryAgain),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

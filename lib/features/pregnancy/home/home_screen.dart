@@ -3,48 +3,55 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/l10n.dart';
 import '../../../core/motion/entrance.dart';
 import '../../../core/motion/pressable.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 import 'hero_card.dart';
 
-/// Today-card summary of active medications, e.g. "2 of 3 medications
-/// taken". Keyed by the screen clock so tests can pin "today".
-final medsDueTodayProvider = Provider.family<AsyncValue<String>, DateTime>((
-  ref,
-  now,
-) {
-  final medsAsync = ref.watch(activeMedsProvider);
-  final logsAsync = ref.watch(medLogsProvider);
+/// Counts how many active medications have been taken today. Null [taken]
+/// means there are no medications at all. Locale-neutral: the UI formats it.
+class MedsTakenSummary {
+  const MedsTakenSummary({required this.taken, required this.total});
 
-  return medsAsync.when(
-    loading: () => const AsyncLoading<String>(),
-    error: (e, st) => AsyncError<String>(e, st),
-    data: (meds) => logsAsync.when(
-      loading: () => const AsyncLoading<String>(),
-      error: (e, st) => AsyncError<String>(e, st),
-      data: (logs) {
-        if (meds.isEmpty) {
-          return const AsyncData('No medications added');
-        }
-        final taken = meds.where((med) {
-          return logs.any((log) {
-            final local = log.takenAt.toLocal();
-            return log.medicationId == med.id &&
-                local.year == now.year &&
-                local.month == now.month &&
-                local.day == now.day;
-          });
-        }).length;
-        final text = taken == meds.length
-            ? 'All medications taken'
-            : '$taken of ${meds.length} medications taken';
-        return AsyncData(text);
-      },
-    ),
-  );
-});
+  final int? taken;
+  final int total;
+}
+
+/// Today-card summary of active medications. Keyed by the screen clock so
+/// tests can pin "today".
+final medsDueTodayProvider =
+    Provider.family<AsyncValue<MedsTakenSummary>, DateTime>((ref, now) {
+      final medsAsync = ref.watch(activeMedsProvider);
+      final logsAsync = ref.watch(medLogsProvider);
+
+      return medsAsync.when(
+        loading: () => const AsyncLoading<MedsTakenSummary>(),
+        error: (e, st) => AsyncError<MedsTakenSummary>(e, st),
+        data: (meds) => logsAsync.when(
+          loading: () => const AsyncLoading<MedsTakenSummary>(),
+          error: (e, st) => AsyncError<MedsTakenSummary>(e, st),
+          data: (logs) {
+            if (meds.isEmpty) {
+              return const AsyncData(MedsTakenSummary(taken: null, total: 0));
+            }
+            final taken = meds.where((med) {
+              return logs.any((log) {
+                final local = log.takenAt.toLocal();
+                return log.medicationId == med.id &&
+                    local.year == now.year &&
+                    local.month == now.month &&
+                    local.day == now.day;
+              });
+            }).length;
+            return AsyncData(
+              MedsTakenSummary(taken: taken, total: meds.length),
+            );
+          },
+        ),
+      );
+    });
 
 class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key, DateTime? now}) : now = now ?? DateTime.now();
@@ -56,13 +63,13 @@ class HomeScreen extends ConsumerWidget {
     final pregnancyAsync = ref.watch(activePregnancyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(title: Text(context.l10n.homeTitle)),
       body: pregnancyAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (pregnancy) {
           if (pregnancy == null) {
-            return const Center(child: Text('No active pregnancy'));
+            return Center(child: Text(context.l10n.homeNoActivePregnancy));
           }
           return _buildContent(context, ref, pregnancy);
         },
@@ -96,30 +103,45 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Today',
+                      context.l10n.homeToday,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
                     nextApptAsync.when(
-                      loading: () => const Text('Loading appointments…'),
-                      error: (e, _) => Text('Error: $e'),
+                      loading: () => Text(context.l10n.homeLoadingAppointments),
+                      error: (e, _) => Text(context.l10n.commonError('$e')),
                       data: (appt) {
                         if (appt == null) {
-                          return const Text('No upcoming appointments');
+                          return Text(context.l10n.homeNoUpcomingAppointments);
                         }
                         final local = appt.at.toLocal();
                         return Text(
-                          'Next: ${appt.type} — '
-                          '${DateFormat('EEE, MMM d').format(local)} at '
-                          '${DateFormat('HH:mm').format(local)}',
+                          context.l10n.homeNextAppointment(
+                            appt.type,
+                            DateFormat('EEE, MMM d').format(local),
+                            DateFormat('HH:mm').format(local),
+                          ),
                         );
                       },
                     ),
                     const SizedBox(height: 4),
                     medsLineAsync.when(
-                      loading: () => const Text('Loading medications…'),
-                      error: (e, _) => Text('Error: $e'),
-                      data: (line) => Text(line),
+                      loading: () => Text(context.l10n.homeLoadingMedications),
+                      error: (e, _) => Text(context.l10n.commonError('$e')),
+                      data: (summary) {
+                        if (summary.taken == null) {
+                          return Text(context.l10n.homeNoMedications);
+                        }
+                        if (summary.taken == summary.total) {
+                          return Text(context.l10n.homeAllMedicationsTaken);
+                        }
+                        return Text(
+                          context.l10n.homeMedicationsTaken(
+                            summary.taken!,
+                            summary.total,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -137,7 +159,7 @@ class HomeScreen extends ConsumerWidget {
                     child: FilledButton.tonalIcon(
                       onPressed: () => context.go('/track/weight/new'),
                       icon: const Icon(Icons.scale),
-                      label: const Text('Weight'),
+                      label: Text(context.l10n.homeQuickWeight),
                     ),
                   ),
                 ),
@@ -147,7 +169,7 @@ class HomeScreen extends ConsumerWidget {
                     child: FilledButton.tonalIcon(
                       onPressed: () => context.go('/track/symptoms/new'),
                       icon: const Icon(Icons.assignment),
-                      label: const Text('Symptom'),
+                      label: Text(context.l10n.homeQuickSymptom),
                     ),
                   ),
                 ),
@@ -157,7 +179,7 @@ class HomeScreen extends ConsumerWidget {
                     child: FilledButton.tonalIcon(
                       onPressed: () => context.go('/track/appointments/new'),
                       icon: const Icon(Icons.event),
-                      label: const Text('Appt'),
+                      label: Text(context.l10n.homeQuickAppointment),
                     ),
                   ),
                 ),
@@ -173,7 +195,7 @@ class HomeScreen extends ConsumerWidget {
                 key: const Key('home-belly-photos-button'),
                 onPressed: () => context.go('/photos/belly'),
                 icon: const Icon(Icons.photo_camera_outlined),
-                label: const Text('Belly photos'),
+                label: Text(context.l10n.homeBellyPhotos),
               ),
             ),
           ),
@@ -185,7 +207,7 @@ class HomeScreen extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () => context.go('/learn/danger-signs'),
                 icon: const Icon(Icons.warning_amber),
-                label: const Text('When to call your provider'),
+                label: Text(context.l10n.homeWhenToCallProvider),
               ),
             ),
           ),

@@ -2,15 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/l10n.dart';
 import '../../../data/providers.dart';
-
-const appointmentTypes = [
-  'OB visit',
-  'Ultrasound',
-  'Blood test',
-  'Midwife visit',
-  'Other',
-];
+import 'appointment_types.dart';
 
 class AppointmentEditScreen extends ConsumerStatefulWidget {
   const AppointmentEditScreen({super.key});
@@ -22,7 +16,7 @@ class AppointmentEditScreen extends ConsumerStatefulWidget {
 
 class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
   late DateTime _when;
-  String _type = appointmentTypes.first;
+  String _type = appointmentTypeKeys.first;
   final _providerController = TextEditingController();
   final _locationController = TextEditingController();
   final _notesController = TextEditingController();
@@ -91,6 +85,10 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
         return v.isEmpty ? null : v;
       }
 
+      // Resolve the localized type before the awaits below (context use
+      // across async gaps is not allowed).
+      final typeLabel = appointmentTypeLabel(context, _type);
+
       final id = await ref
           .read(appointmentRepositoryProvider)
           .add(
@@ -103,7 +101,11 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
 
       await ref
           .read(reminderServiceProvider)
-          .scheduleAppointment(appointmentId: id, type: _type, at: atUtc);
+          .scheduleAppointment(
+            appointmentId: id,
+            type: typeLabel,
+            at: atUtc,
+          );
 
       if (mounted) Navigator.of(context).pop();
     } finally {
@@ -114,7 +116,7 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Appointment')),
+      appBar: AppBar(title: Text(context.l10n.addAppointmentTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -123,13 +125,16 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
             DropdownButtonFormField<String>(
               key: const Key('appointment-type-field'),
               initialValue: _type,
-              decoration: const InputDecoration(
-                labelText: 'Type',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.appointmentTypeLabel,
+                border: const OutlineInputBorder(),
               ),
               items: [
-                for (final t in appointmentTypes)
-                  DropdownMenuItem(value: t, child: Text(t)),
+                for (final t in appointmentTypeKeys)
+                  DropdownMenuItem(
+                    value: t,
+                    child: Text(appointmentTypeLabel(context, t)),
+                  ),
               ],
               onChanged: (v) => setState(() => _type = v ?? _type),
             ),
@@ -141,7 +146,7 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.calendar_today),
                     title: Text(DateFormat('EEE, MMM d').format(_when)),
-                    subtitle: const Text('Date'),
+                    subtitle: Text(context.l10n.dateLabel),
                     onTap: _pickDate,
                   ),
                 ),
@@ -150,7 +155,7 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.schedule),
                     title: Text(DateFormat('HH:mm').format(_when)),
-                    subtitle: const Text('Time'),
+                    subtitle: Text(context.l10n.timeLabel),
                     onTap: _pickTime,
                   ),
                 ),
@@ -160,40 +165,40 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
             TextField(
               controller: _providerController,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Provider (optional)',
-                border: OutlineInputBorder(),
-                hintText: 'e.g. Dr. Chen',
+              decoration: InputDecoration(
+                labelText: context.l10n.providerOptional,
+                border: const OutlineInputBorder(),
+                hintText: context.l10n.providerHint,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _locationController,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Location (optional)',
-                border: OutlineInputBorder(),
-                hintText: 'e.g. City Clinic',
+              decoration: InputDecoration(
+                labelText: context.l10n.locationOptional,
+                border: const OutlineInputBorder(),
+                hintText: context.l10n.locationHint,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _notesController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.notesOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'You will get a reminder 24 hours before this appointment.',
+              context.l10n.apptReminderNote,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: _saving ? null : _save,
-              child: const Text('Save'),
+              child: Text(context.l10n.commonSave),
             ),
           ],
         ),

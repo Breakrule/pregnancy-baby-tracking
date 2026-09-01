@@ -42,6 +42,9 @@ class SettingsRows extends Table {
   TextColumn get glucoseUnit =>
       textEnum<GlucoseUnit>().withDefault(const Constant('mgdl'))();
 
+  /// BCP-47 language tag for the UI ('en', 'id').
+  TextColumn get locale => text().withDefault(const Constant('en'))();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -98,6 +101,7 @@ class Photos extends Table {
   TextColumn get category => textEnum<PhotoCategory>()();
   DateTimeColumn get takenAt => dateTime()();
   TextColumn get fileName => text()();
+
   /// Gestational age at the time of the photo, for belly/ultrasound
   /// categories. Null for baby photos.
   IntColumn get gestationalDays => integer().nullable()();

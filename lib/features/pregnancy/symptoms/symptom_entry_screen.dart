@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../content/models.dart';
 import '../../../content/providers.dart';
+import '../../../core/l10n.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
 import '../../../domain/alerts/alert.dart';
@@ -42,10 +43,10 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
     final bundleAsync = ref.watch(contentProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Log Symptom')),
+      appBar: AppBar(title: Text(context.l10n.logSymptomTitle)),
       body: bundleAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (bundle) => _buildBody(bundle),
       ),
     );
@@ -69,20 +70,19 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.blue.shade200),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 20),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Spotting is often harmless, but always mention bleeding to your provider.',
-                    ),
-                  ),
+                  const Icon(Icons.info_outline, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(context.l10n.symptomSpottingInfo)),
                 ],
               ),
             ),
 
-          Text('Symptom', style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            context.l10n.symptomFieldLabel,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -105,7 +105,7 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
                   },
                 ),
               ChoiceChip(
-                label: const Text('Other\u2026'),
+                label: Text(context.l10n.symptomOther),
                 selected: _showCustomField,
                 onSelected: (selected) {
                   setState(() {
@@ -125,27 +125,33 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
             const SizedBox(height: 12),
             TextField(
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Describe your symptom',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.symptomDescribe,
+                border: const OutlineInputBorder(),
               ),
               onChanged: (v) => _customLabel = v,
             ),
           ],
           const SizedBox(height: 16),
 
-          Text('Severity', style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            context.l10n.symptomSeverityLabel,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: 8),
           SegmentedButton<SymptomSeverity>(
-            segments: const [
-              ButtonSegment(value: SymptomSeverity.mild, label: Text('Mild')),
+            segments: [
+              ButtonSegment(
+                value: SymptomSeverity.mild,
+                label: Text(context.l10n.symptomSeverityMild),
+              ),
               ButtonSegment(
                 value: SymptomSeverity.moderate,
-                label: Text('Moderate'),
+                label: Text(context.l10n.symptomSeverityModerate),
               ),
               ButtonSegment(
                 value: SymptomSeverity.severe,
-                label: Text('Severe'),
+                label: Text(context.l10n.symptomSeveritySevere),
               ),
             ],
             selected: {_severity},
@@ -154,23 +160,23 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
           const SizedBox(height: 16),
 
           Text(
-            'Notes (optional)',
+            context.l10n.notesOptional,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _notesController,
             maxLines: 3,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Any additional details\u2026',
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              hintText: context.l10n.anyAdditionalDetails,
             ),
           ),
           const SizedBox(height: 24),
 
           FilledButton(
             onPressed: _canSave ? () => _save(bundle) : null,
-            child: const Text('Save'),
+            child: Text(context.l10n.commonSave),
           ),
         ],
       ),
@@ -241,7 +247,7 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                alert.title,
+                context.l10n.symptomRedFlagTitle,
                 style: const TextStyle(color: Colors.red),
               ),
             ),
@@ -255,23 +261,23 @@ class _SymptomEntryScreenState extends ConsumerState<SymptomEntryScreen> {
               if (clinicPhone != null) {
                 // No telephony package; just show the number in a snackbar
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Provider phone: $clinicPhone')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
-                      'No provider phone on file. Add it in your pregnancy setup.',
+                      context.l10n.symptomProviderPhone(clinicPhone),
                     ),
                   ),
                 );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.l10n.symptomNoProviderPhone)),
+                );
               }
             },
-            child: const Text('Call provider'),
+            child: Text(context.l10n.symptomCallProvider),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
+            child: Text(context.l10n.commonOk),
           ),
         ],
       ),

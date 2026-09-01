@@ -17,15 +17,17 @@ class PhotoRepository {
     int? gestationalDays,
     String? notes,
   }) {
-    return _db.into(_db.photos).insert(
-      PhotosCompanion.insert(
-        category: category,
-        takenAt: takenAt,
-        fileName: fileName,
-        gestationalDays: Value(gestationalDays),
-        notes: Value(notes),
-      ),
-    );
+    return _db
+        .into(_db.photos)
+        .insert(
+          PhotosCompanion.insert(
+            category: category,
+            takenAt: takenAt,
+            fileName: fileName,
+            gestationalDays: Value(gestationalDays),
+            notes: Value(notes),
+          ),
+        );
   }
 
   /// Emits the photos of one category ordered by takenAt ascending
@@ -39,9 +41,9 @@ class PhotoRepository {
 
   /// Single photo by id, or null when it no longer exists.
   Future<Photo?> byId(int id) async {
-    final rows = await (_db.select(_db.photos)
-          ..where((t) => t.id.equals(id)))
-        .get();
+    final rows = await (_db.select(
+      _db.photos,
+    )..where((t) => t.id.equals(id))).get();
     return rows.isEmpty ? null : rows.first;
   }
 

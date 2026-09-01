@@ -26,7 +26,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? _defaultExecutor());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,6 +35,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         // v2: photo journal (belly, ultrasound, baby).
         await m.createTable(photos);
+      }
+      if (from < 3) {
+        // v3: UI language preference.
+        await m.addColumn(settingsRows, settingsRows.locale);
       }
     },
     beforeOpen: (details) async {

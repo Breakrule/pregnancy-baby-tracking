@@ -128,7 +128,9 @@ class PhotoService {
             interpolation: img.Interpolation.linear,
           );
         }
-        final encoded = Uint8List.fromList(img.encodeJpg(out, quality: quality));
+        final encoded = Uint8List.fromList(
+          img.encodeJpg(out, quality: quality),
+        );
         return CompressedImage(
           bytes: encoded,
           width: out.width,

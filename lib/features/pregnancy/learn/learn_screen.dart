@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../content/models.dart';
 import '../../../content/providers.dart';
+import '../../../core/l10n.dart';
 import '../../../core/widgets/disclaimer_footer.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
@@ -21,13 +22,14 @@ class LearnScreen extends ConsumerWidget {
     final pregnancyAsync = ref.watch(activePregnancyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Learn')),
+      appBar: AppBar(title: Text(context.l10n.learnTitle)),
       body: contentAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Failed to load content: $e')),
+        error: (e, _) =>
+            Center(child: Text(context.l10n.learnFailedToLoad('$e'))),
         data: (bundle) => pregnancyAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
+          error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
           data: (pregnancy) => ListView(
             padding: const EdgeInsets.only(bottom: 16),
             children: [
@@ -66,7 +68,7 @@ class _ThisWeekCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
-            'Complete setup to see your weekly content.',
+            context.l10n.learnCompleteSetup,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
@@ -82,7 +84,7 @@ class _ThisWeekCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
-            'Content for this week arrives in the next update.',
+            context.l10n.learnContentNextUpdate,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
@@ -97,30 +99,33 @@ class _ThisWeekCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'This Week — Week ${weekContent.week}',
+              context.l10n.learnThisWeek(weekContent.week),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              'Size of a ${weekContent.sizeObject} (~${weekContent.sizeCm} cm)',
+              context.l10n.learnSizeOf(
+                weekContent.sizeObject,
+                '${weekContent.sizeCm}',
+              ),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            ContentSectionHeader(title: 'Baby development'),
+            ContentSectionHeader(title: context.l10n.learnBabyDevelopment),
             ...weekContent.development.map(
               (String d) => ContentBullet(text: d),
             ),
             const SizedBox(height: 8),
-            ContentSectionHeader(title: 'Your body'),
+            ContentSectionHeader(title: context.l10n.learnYourBody),
             ...weekContent.bodyChanges.map(
               (String b) => ContentBullet(text: b),
             ),
             const SizedBox(height: 8),
-            ContentSectionHeader(title: 'Tips'),
+            ContentSectionHeader(title: context.l10n.learnTips),
             ...weekContent.tips.map((String t) => ContentBullet(text: t)),
             if (weekContent.checklist.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ContentSectionHeader(title: 'Checklist'),
+              ContentSectionHeader(title: context.l10n.learnChecklist),
               ...weekContent.checklist.map(
                 (String c) => ContentBullet(text: c),
               ),
@@ -145,13 +150,13 @@ class _AllWeeksList extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'All Weeks',
+            context.l10n.learnAllWeeks,
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
         ...bundle.weeks.map(
           (WeekContent w) => ListTile(
-            title: Text('Week ${w.week} — size of a ${w.sizeObject}'),
+            title: Text(context.l10n.learnWeekSize(w.week, w.sizeObject)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/learn/week/${w.week}'),
           ),

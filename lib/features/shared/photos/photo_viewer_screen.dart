@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
@@ -22,21 +23,25 @@ class PhotoViewerScreen extends ConsumerWidget {
   final PhotoCategory category;
   final int photoId;
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, Photo photo) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    Photo photo,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete photo?'),
-        content: const Text('This cannot be undone.'),
+        title: Text(context.l10n.photosDeleteQuestion),
+        content: Text(context.l10n.photosDeleteWarning),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             key: const Key('photo-delete-confirm'),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -66,14 +71,17 @@ class PhotoViewerScreen extends ConsumerWidget {
         if (photo == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: const Center(child: Text('Photo not found')),
+            body: Center(child: Text(context.l10n.photosNotFound)),
           );
         }
 
         final subtitle = [
           formatPhotoDate(photo.takenAt),
           if (photo.gestationalDays != null)
-            'Week ${photo.gestationalDays! ~/ 7} + ${photo.gestationalDays! % 7}',
+            context.l10n.photosWeekPlus(
+              photo.gestationalDays! ~/ 7,
+              photo.gestationalDays! % 7,
+            ),
         ].join(' · ');
 
         return Scaffold(

@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/l10n.dart';
 import '../../../core/motion/pressable.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
 import '../../../data/repositories/appointment_repository.dart';
+import 'appointment_types.dart';
 
 class AppointmentsScreen extends ConsumerWidget {
   const AppointmentsScreen({super.key});
@@ -24,7 +26,7 @@ class AppointmentsScreen extends ConsumerWidget {
     final pastAsync = ref.watch(pastAppointmentsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Appointments')),
+      appBar: AppBar(title: Text(context.l10n.appointmentsTitle)),
       floatingActionButton: PressableScale(
         child: FloatingActionButton(
           onPressed: () => context.push('/track/appointments/new'),
@@ -33,25 +35,25 @@ class AppointmentsScreen extends ConsumerWidget {
       ),
       body: upcomingAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (upcoming) => pastAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
+          error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
           data: (past) => ListView(
             children: [
-              _sectionHeader(context, 'Upcoming'),
+              _sectionHeader(context, context.l10n.appointmentsUpcomingSection),
               if (upcoming.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('No upcoming appointments'),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(context.l10n.appointmentsNoUpcoming),
                 )
               else
                 for (final appt in upcoming) _UpcomingTile(appt: appt),
-              _sectionHeader(context, 'Past'),
+              _sectionHeader(context, context.l10n.appointmentsPastSection),
               if (past.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('No past appointments'),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(context.l10n.appointmentsNoPast),
                 )
               else
                 for (final appt in past) _PastTile(appt: appt),
@@ -94,12 +96,12 @@ class _UpcomingTile extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text(appt.type),
+              title: Text(appointmentTypeLabel(sheetContext, appt.type)),
               subtitle: Text(AppointmentsScreen.formatWhen(appt.at)),
             ),
             ListTile(
               leading: const Icon(Icons.check_circle_outline),
-              title: const Text('Mark completed'),
+              title: Text(sheetContext.l10n.appointmentsMarkCompleted),
               onTap: () => _setStatus(
                 sheetContext,
                 ref,
@@ -108,7 +110,7 @@ class _UpcomingTile extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.cancel_outlined),
-              title: const Text('Cancel visit'),
+              title: Text(sheetContext.l10n.appointmentsCancelVisit),
               onTap: () =>
                   _setStatus(sheetContext, ref, (repo) => repo.cancel(appt.id)),
             ),
@@ -123,7 +125,7 @@ class _UpcomingTile extends ConsumerWidget {
     return ListTile(
       key: ValueKey('appointment-${appt.id}'),
       leading: const Icon(Icons.event),
-      title: Text(appt.type),
+      title: Text(appointmentTypeLabel(context, appt.type)),
       subtitle: Text(
         [
           AppointmentsScreen.formatWhen(appt.at),
@@ -145,14 +147,14 @@ class _PastTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = switch (appt.status) {
-      AppointmentStatus.completed => 'Completed',
-      AppointmentStatus.cancelled => 'Cancelled',
-      AppointmentStatus.upcoming => 'Missed',
+      AppointmentStatus.completed => context.l10n.appointmentsStatusCompleted,
+      AppointmentStatus.cancelled => context.l10n.appointmentsStatusCancelled,
+      AppointmentStatus.upcoming => context.l10n.appointmentsStatusMissed,
     };
     return ListTile(
       key: ValueKey('appointment-past-${appt.id}'),
       leading: const Icon(Icons.history),
-      title: Text(appt.type),
+      title: Text(appointmentTypeLabel(context, appt.type)),
       subtitle: Text('${AppointmentsScreen.formatWhen(appt.at)} · $label'),
     );
   }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/motion/animated_item_list.dart';
+import '../../../core/l10n.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 import '../../../domain/gestational/gestational_calculator.dart';
@@ -23,7 +24,7 @@ class WeightHistoryScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weight History'),
+        title: Text(context.l10n.weightHistoryTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -33,10 +34,10 @@ class WeightHistoryScreen extends ConsumerWidget {
       ),
       body: weightsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (entries) => pregnancyAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
+          error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
           data: (pregnancy) => _buildBody(context, ref, entries, pregnancy),
         ),
       ),
@@ -50,11 +51,11 @@ class WeightHistoryScreen extends ConsumerWidget {
     Pregnancy? pregnancy,
   ) {
     if (entries.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Text(
-            'No weight entries yet.\nTap + to log your first weight.',
+            context.l10n.weightNoEntries,
             textAlign: TextAlign.center,
           ),
         ),
@@ -69,6 +70,7 @@ class WeightHistoryScreen extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 24, 0),
             child: _buildChart(
+              context,
               entries,
               pregnancy,
               Theme.of(context).colorScheme.primary,
@@ -91,6 +93,7 @@ class WeightHistoryScreen extends ConsumerWidget {
   }
 
   Widget _buildChart(
+    BuildContext context,
     List<WeightEntry> entries,
     Pregnancy? pregnancy,
     Color primaryColor,
@@ -230,7 +233,10 @@ class WeightHistoryScreen extends ConsumerWidget {
           touchTooltipData: LineTouchTooltipData(
             getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
               return LineTooltipItem(
-                '${spot.y.toStringAsFixed(1)} kg\nWeek ${spot.x.toInt()}',
+                context.l10n.weightChartTooltip(
+                  spot.y.toStringAsFixed(1),
+                  spot.x.toInt().toString(),
+                ),
                 const TextStyle(color: Colors.white, fontSize: 12),
               );
             }).toList(),
@@ -261,7 +267,9 @@ class WeightHistoryScreen extends ConsumerWidget {
         ref.read(weightRepositoryProvider).delete(entry.id);
       },
       child: ListTile(
-        title: Text('${entry.weightKg.toStringAsFixed(1)} kg'),
+        title: Text(
+          context.l10n.weightValueKg(entry.weightKg.toStringAsFixed(1)),
+        ),
         subtitle: Text(
           '$dateStr${entry.notes != null ? '\n${entry.notes}' : ''}',
         ),

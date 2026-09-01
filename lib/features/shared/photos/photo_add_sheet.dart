@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/l10n.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
 import '../../../domain/gestational/gestational_calculator.dart';
@@ -24,11 +25,12 @@ PhotoCategory? photoCategoryFromPath(String path) {
   return null;
 }
 
-String photoCategoryTitle(PhotoCategory category) => switch (category) {
-  PhotoCategory.belly => 'Belly photos',
-  PhotoCategory.ultrasound => 'Ultrasounds',
-  PhotoCategory.baby => 'Baby photos',
-};
+String photoCategoryTitle(BuildContext context, PhotoCategory category) =>
+    switch (category) {
+      PhotoCategory.belly => context.l10n.photosBellyTitle,
+      PhotoCategory.ultrasound => context.l10n.photosUltrasoundsTitle,
+      PhotoCategory.baby => context.l10n.photosBabyTitle,
+    };
 
 /// Two-step add flow: pick a source (camera/gallery), then confirm date and
 /// notes before saving. A captured-but-not-saved photo is deleted again.
@@ -76,7 +78,11 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
     if (picked != null) {
       setState(() {
         _takenAt = _takenAt.isAfter(picked)
-            ? picked.add(_takenAt.difference(DateTime(picked.year, picked.month, picked.day)))
+            ? picked.add(
+                _takenAt.difference(
+                  DateTime(picked.year, picked.month, picked.day),
+                ),
+              )
             : picked;
       });
     }
@@ -90,19 +96,22 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
     if (widget.category != PhotoCategory.baby) {
       final pregnancy = await ref.read(activePregnancyProvider.future);
       if (pregnancy != null) {
-        gestationalDays = GestationalCalculator
-            .gestationalAgeAt(pregnancy.lmpDate, _takenAt)
-            .totalDays;
+        gestationalDays = GestationalCalculator.gestationalAgeAt(
+          pregnancy.lmpDate,
+          _takenAt,
+        ).totalDays;
       }
     }
 
-    await ref.read(photoRepositoryProvider).add(
-      category: widget.category,
-      takenAt: _takenAt.toUtc(),
-      fileName: _captured!.fileName,
-      gestationalDays: gestationalDays,
-      notes: _notesController.text.isEmpty ? null : _notesController.text,
-    );
+    await ref
+        .read(photoRepositoryProvider)
+        .add(
+          category: widget.category,
+          takenAt: _takenAt.toUtc(),
+          fileName: _captured!.fileName,
+          gestationalDays: gestationalDays,
+          notes: _notesController.text.isEmpty ? null : _notesController.text,
+        );
     _saved = true;
     if (mounted) Navigator.of(context).pop(true);
   }
@@ -113,7 +122,9 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: captured == null ? _buildSourcePicker() : _buildDetails(captured),
+        child: captured == null
+            ? _buildSourcePicker()
+            : _buildDetails(captured),
       ),
     );
   }
@@ -125,13 +136,13 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
         ListTile(
           key: const Key('photo-source-camera'),
           leading: const Icon(Icons.photo_camera),
-          title: const Text('Take photo'),
+          title: Text(context.l10n.photosTakePhoto),
           onTap: () => _capture(ImageSource.camera),
         ),
         ListTile(
           key: const Key('photo-source-gallery'),
           leading: const Icon(Icons.photo_library),
-          title: const Text('Choose from gallery'),
+          title: Text(context.l10n.photosChooseFromGallery),
           onTap: () => _capture(ImageSource.gallery),
         ),
       ],
@@ -152,11 +163,7 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
             }
             return ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.file(
-                snapshot.data!,
-                height: 180,
-                fit: BoxFit.cover,
-              ),
+              child: Image.file(snapshot.data!, height: 180, fit: BoxFit.cover),
             );
           },
         ),
@@ -170,7 +177,7 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
         ),
         TextField(
           controller: _notesController,
-          decoration: const InputDecoration(labelText: 'Notes (optional)'),
+          decoration: InputDecoration(labelText: context.l10n.notesOptional),
           maxLines: 2,
         ),
         const SizedBox(height: 12),
@@ -183,7 +190,7 @@ class _PhotoAddSheetState extends ConsumerState<PhotoAddSheet> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Save'),
+              : Text(context.l10n.commonSave),
         ),
       ],
     );

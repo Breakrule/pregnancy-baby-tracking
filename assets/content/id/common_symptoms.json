@@ -1,0 +1,20 @@
+{
+  "symptoms": [
+    {"key": "nausea", "label": "Mual / morning sickness"},
+    {"key": "fatigue", "label": "Kelelahan"},
+    {"key": "breast_tenderness", "label": "Payudara nyeri"},
+    {"key": "back_pain", "label": "Nyeri punggung"},
+    {"key": "round_ligament_pain", "label": "Nyeri ligamen bundar"},
+    {"key": "heartburn", "label": "Nyeri ulu hati"},
+    {"key": "constipation", "label": "Sembelit"},
+    {"key": "frequent_urination", "label": "Sering buang air kecil"},
+    {"key": "mild_cramping", "label": "Kram ringan"},
+    {"key": "headache_mild", "label": "Sakit kepala ringan"},
+    {"key": "dizziness_mild", "label": "Pusing ringan"},
+    {"key": "swelling_mild", "label": "Bengkak ringan (tangan/kaki)"},
+    {"key": "mood_changes", "label": "Perubahan suasana hati"},
+    {"key": "food_aversion", "label": "Enggan terhadap makanan"},
+    {"key": "insomnia", "label": "Sulit tidur"},
+    {"key": "light_spotting", "label": "Bercak darah ringan"}
+  ]
+}

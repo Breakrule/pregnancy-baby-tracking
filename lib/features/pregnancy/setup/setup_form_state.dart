@@ -1,6 +1,18 @@
 import '../../../data/db/tables.dart';
 import '../../../domain/gestational/gestational_calculator.dart';
 
+/// Locale-neutral validation outcomes; the UI maps them to localized
+/// strings so this class stays free of display copy.
+enum SetupValidationIssue {
+  dateMissing,
+  dateInFuture,
+  dateTooOld,
+  weightMissing,
+  weightOutOfRange,
+  heightMissing,
+  heightOutOfRange,
+}
+
 class SetupFormState {
   SetupFormState({
     this.source = ConceptionSource.lmp,
@@ -43,24 +55,27 @@ class SetupFormState {
   };
 
   /// [today] should be a local-time date (DateTime.now()); comparisons are date-only.
-  String? validateReferenceDate(DateTime? value, {required DateTime today}) {
-    if (value == null) return 'Choose a date';
+  SetupValidationIssue? validateReferenceDate(
+    DateTime? value, {
+    required DateTime today,
+  }) {
+    if (value == null) return SetupValidationIssue.dateMissing;
     final dateOnly = DateTime(value.year, value.month, value.day);
-    if (dateOnly.isAfter(today)) return 'Date must be in the past';
+    if (dateOnly.isAfter(today)) return SetupValidationIssue.dateInFuture;
     final earliest = today.subtract(const Duration(days: 320));
-    if (dateOnly.isBefore(earliest)) return 'Date is more than 45 weeks ago';
+    if (dateOnly.isBefore(earliest)) return SetupValidationIssue.dateTooOld;
     return null;
   }
 
-  String? validateWeight(double? kg) {
-    if (kg == null) return 'Enter your pre-pregnancy weight';
-    if (kg < 30 || kg > 250) return 'Weight must be between 30 and 250 kg';
+  SetupValidationIssue? validateWeight(double? kg) {
+    if (kg == null) return SetupValidationIssue.weightMissing;
+    if (kg < 30 || kg > 250) return SetupValidationIssue.weightOutOfRange;
     return null;
   }
 
-  String? validateHeight(double? cm) {
-    if (cm == null) return 'Enter your height';
-    if (cm < 120 || cm > 220) return 'Height must be between 120 and 220 cm';
+  SetupValidationIssue? validateHeight(double? cm) {
+    if (cm == null) return SetupValidationIssue.heightMissing;
+    if (cm < 120 || cm > 220) return SetupValidationIssue.heightOutOfRange;
     return null;
   }
 }

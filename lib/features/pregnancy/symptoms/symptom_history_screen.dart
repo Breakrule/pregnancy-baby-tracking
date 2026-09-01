@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../content/providers.dart';
+import '../../../core/l10n.dart';
 import '../../../core/motion/animated_item_list.dart';
 import '../../../data/db/app_database.dart';
+import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
 
 class SymptomHistoryScreen extends ConsumerWidget {
@@ -14,13 +17,13 @@ class SymptomHistoryScreen extends ConsumerWidget {
     final symptomsAsync = ref.watch(symptomsStreamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Symptom History')),
+      appBar: AppBar(title: Text(context.l10n.symptomHistoryTitle)),
       body: symptomsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (symptoms) {
           if (symptoms.isEmpty) {
-            return const Center(child: Text('No symptoms logged yet.'));
+            return Center(child: Text(context.l10n.symptomNoEntries));
           }
           return _buildGroupedList(context, ref, symptoms);
         },
@@ -71,10 +74,28 @@ class SymptomHistoryScreen extends ConsumerWidget {
   }
 
   Widget _buildTile(BuildContext context, WidgetRef ref, Symptom s) {
-    final label = s.customLabel ?? s.typeKey;
+    // Custom labels are user text; preset keys resolve to the localized
+    // content label, falling back to the raw key.
+    String label;
+    if (s.customLabel != null) {
+      label = s.customLabel!;
+    } else {
+      final preset = ref
+          .watch(contentProvider)
+          .valueOrNull
+          ?.symptomPresets
+          .where((p) => p.key == s.typeKey)
+          .firstOrNull;
+      label = preset?.label ?? s.typeKey;
+    }
     final timeFormat = DateFormat.Hm();
+    final severityLabel = switch (s.severity) {
+      SymptomSeverity.mild => context.l10n.symptomSeverityMild,
+      SymptomSeverity.moderate => context.l10n.symptomSeverityModerate,
+      SymptomSeverity.severe => context.l10n.symptomSeveritySevere,
+    };
     final subtitle =
-        '${s.severity.name} \u2022 ${timeFormat.format(s.loggedAt.toLocal())}'
+        '$severityLabel \u2022 ${timeFormat.format(s.loggedAt.toLocal())}'
         '${s.notes != null ? '\n${s.notes}' : ''}';
 
     return Dismissible(

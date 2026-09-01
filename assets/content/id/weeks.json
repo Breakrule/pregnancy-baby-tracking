@@ -1,0 +1,256 @@
+{
+  "weeks": [
+    {
+      "week": 3,
+      "size_object": "biji poppy",
+      "size_cm": 0.1,
+      "development": [
+        "Pembuahan telah terjadi; zigot membelah sambil bergerak menuju rahim.",
+        "Implantasi dimulai pada akhir minggu ini."
+      ],
+      "body_changes": [
+        "Anda mungkin belum merasakan apa pun — itu normal.",
+        "Sebagian perempuan merasakan kram ringan atau bercak darah ringan saat implantasi."
+      ],
+      "tips": [
+        "Mulai (atau lanjutkan) vitamin prenatal dengan 400–800 mcg asam folat.",
+        "Hindari alkohol dan rokok."
+      ],
+      "checklist": ["Mulai vitamin prenatal"]
+    },
+    {
+      "week": 4,
+      "size_object": "biji poppy",
+      "size_cm": 0.2,
+      "development": [
+        "Embrio menempel pada dinding rahim.",
+        "Hormon hCG mulai meningkat — inilah yang dideteksi oleh tes kehamilan."
+      ],
+      "body_changes": [
+        "Terlambat haid.",
+        "Kelelahan ringan atau nyeri payudara dapat mulai terasa."
+      ],
+      "tips": [
+        "Lakukan tes kehamilan di rumah jika belum.",
+        "Buat janji kunjungan prenatal pertama (biasanya minggu ke-8–10)."
+      ],
+      "checklist": ["Konfirmasi kehamilan dengan tes", "Buat kunjungan pertama ke dokter kandungan"]
+    },
+    {
+      "week": 5,
+      "size_object": "biji wijen",
+      "size_cm": 0.2,
+      "development": [
+        "Tabung saraf (calon otak dan tulang belakang) sedang terbentuk.",
+        "Jantung mulai berdetak."
+      ],
+      "body_changes": [
+        "Mual dapat mulai muncul.",
+        "Sering buang air kecil dan kelelahan umum terjadi."
+      ],
+      "tips": [
+        "Makan dalam porsi kecil tapi sering jika mual.",
+        "Tetap cukup minum."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 6,
+      "size_object": "kacang lentil",
+      "size_cm": 0.5,
+      "development": [
+        "Detak jantung mungkin sudah terlihat pada USG (~110 bpm).",
+        "Fitur wajah awal serta tunas lengan/kaki mulai tampak."
+      ],
+      "body_changes": [
+        "Morning sickness sering memuncak pada minggu-minggu mendatang.",
+        "Keengganan terhadap makanan atau sensitif terhadap bau menyengat."
+      ],
+      "tips": [
+        "Jahe atau biskuit tawar dapat membantu meredakan mual.",
+        "Istirahatlah saat bisa — rasa lelah itu nyata."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 7,
+      "size_object": "blueberry",
+      "size_cm": 1.0,
+      "development": [
+        "Otak tumbuh dengan pesat.",
+        "Tangan dan kaki sedang terbentuk."
+      ],
+      "body_changes": [
+        "Mual mungkin masih kuat.",
+        "Payudara mungkin terasa lebih penuh dan nyeri."
+      ],
+      "tips": [
+        "Bra yang nyaman akan membantu.",
+        "Beri tahu tenaga kesehatan tentang obat apa pun yang Anda konsumsi."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 8,
+      "size_object": "raspberry",
+      "size_cm": 1.6,
+      "development": [
+        "Jari-jari mulai terbentuk; embrio mulai melakukan gerakan kecil.",
+        "Organ-organ utama sudah berada di tempatnya."
+      ],
+      "body_changes": [
+        "Kembung dan kram ringan dapat terjadi.",
+        "Perubahan suasana hati umum terjadi."
+      ],
+      "tips": [
+        "Kunjungan prenatal pertama biasanya terjadi sekitar waktu ini.",
+        "Tuliskan pertanyaan untuk tenaga kesehatan Anda."
+      ],
+      "checklist": ["Hadiri kunjungan prenatal pertama"]
+    },
+    {
+      "week": 9,
+      "size_object": "ceri",
+      "size_cm": 2.3,
+      "development": [
+        "Kini resmi disebut janin.",
+        "Otot sedang berkembang; gerakan kecil terus berlanjut."
+      ],
+      "body_changes": [
+        "Mual sering mendekati puncaknya.",
+        "Pinggang celana mungkin mulai terasa ketat."
+      ],
+      "tips": [
+        "Makanan kaya zat besi membantu mengatasi kelelahan.",
+        "Jalan santai sangat baik."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 10,
+      "size_object": "stroberi",
+      "size_cm": 3.1,
+      "development": [
+        "Tulang dan tulang rawan sedang terbentuk.",
+        "Janin sudah dapat menendang dan menelan."
+      ],
+      "body_changes": [
+        "Sebagian perempuan merasa sedikit lebih baik minggu ini.",
+        "Nyeri ringan pada ligamen bundar mungkin terasa."
+      ],
+      "tips": [
+        "Tanyakan tentang skrining NIPT/DNA bebas sel (tersedia mulai minggu ke-10).",
+        "Teruskan mengonsumsi vitamin prenatal."
+      ],
+      "checklist": ["Diskusikan pilihan skrining dengan tenaga kesehatan"]
+    },
+    {
+      "week": 11,
+      "size_object": "buah ara",
+      "size_cm": 4.1,
+      "development": [
+        "Janin dapat membuka dan menutup kepalan tangannya.",
+        "Alat kelamin luar mulai berdiferensiasi."
+      ],
+      "body_changes": [
+        "Mual sering mulai mereda segera.",
+        "Perubahan kulit dapat muncul."
+      ],
+      "tips": [
+        "Jaga kecukupan minum secara konsisten.",
+        "Mulai pertimbangkan skrining trimester pertama (minggu ke-11–13)."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 12,
+      "size_object": "jeruk nipis",
+      "size_cm": 5.4,
+      "development": [
+        "Refleks sedang berkembang.",
+        "Detak jantung kadang sudah dapat didengar dengan Doppler."
+      ],
+      "body_changes": [
+        "Akhir trimester 1 sudah dekat — banyak gejala membaik.",
+        "Energi mungkin mulai kembali."
+      ],
+      "tips": [
+        "Skrining trimester pertama (translusensia nukhal) biasanya dilakukan pada minggu ke-11–13.",
+        "Bagikan kabar baiknya jika Anda mau!"
+      ],
+      "checklist": ["Skrining trimester pertama jika dipilih"]
+    },
+    {
+      "week": 13,
+      "size_object": "persik",
+      "size_cm": 7.4,
+      "development": [
+        "Sidik jari yang unik sedang terbentuk.",
+        "Pita suara sedang berkembang."
+      ],
+      "body_changes": [
+        "Trimester 2 dimulai minggu depan.",
+        "Perut mungkin mulai sedikit terlihat."
+      ],
+      "tips": [
+        "Makan seimbang dengan protein dan serat membantu energi.",
+        "Mulai rutinitas olahraga ringan jika belum."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 14,
+      "size_object": "lemon",
+      "size_cm": 8.7,
+      "development": [
+        "Janin dapat membuat ekspresi wajah.",
+        "Rambut halus (lanugo) menyelimuti tubuh untuk kehangatan."
+      ],
+      "body_changes": [
+        "Sering disebut fase 'bulan madu' — energi kembali.",
+        "Nyeri ligamen bundar dapat muncul seiring membesarnya rahim."
+      ],
+      "tips": [
+        "Ubah posisi perlahan untuk meredakan nyeri ligamen bundar.",
+        "Rencanakan USG anatomi (~minggu ke-20) dengan tenaga kesehatan Anda."
+      ],
+      "checklist": ["Jadwalkan USG anatomi (~minggu ke-20)"]
+    },
+    {
+      "week": 15,
+      "size_object": "apel",
+      "size_cm": 10.1,
+      "development": [
+        "Indera sedang berkembang; kepekaan terhadap cahaya dimulai.",
+        "Rangka mengeras dari tulang rawan menjadi tulang."
+      ],
+      "body_changes": [
+        "Hidung tersumbat dapat terjadi.",
+        "Nafsu makan sering meningkat."
+      ],
+      "tips": [
+        "Makanan kaya kalsium mendukung perkembangan tulang.",
+        "Mulai cari informasi kelas prenatal jika berminat."
+      ],
+      "checklist": []
+    },
+    {
+      "week": 16,
+      "size_object": "alpukat",
+      "size_cm": 11.6,
+      "development": [
+        "Telinga sudah pada posisinya; pendengaran mulai berkembang.",
+        "Tali pusar telah terbentuk sempurna."
+      ],
+      "body_changes": [
+        "Anda mungkin merasa lebih nyaman daripada trimester 1.",
+        "Gerakan pertama mungkin segera terasa (sering pada minggu ke-16–20)."
+      ],
+      "tips": [
+        "Catat gerakan pertama untuk catatan Anda.",
+        "Teruskan pemeriksaan rutin."
+      ],
+      "checklist": []
+    }
+  ]
+}

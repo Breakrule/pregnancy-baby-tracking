@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/l10n.dart';
 import '../../../core/motion/pressable.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/tables.dart';
@@ -23,7 +24,7 @@ class GalleryScreen extends ConsumerWidget {
     final photosAsync = ref.watch(photosProvider(category));
 
     return Scaffold(
-      appBar: AppBar(title: Text(photoCategoryTitle(category))),
+      appBar: AppBar(title: Text(photoCategoryTitle(context, category))),
       floatingActionButton: PressableScale(
         child: FloatingActionButton(
           key: const Key('photo-add-fab'),
@@ -39,14 +40,14 @@ class GalleryScreen extends ConsumerWidget {
       ),
       body: photosAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.commonError('$e'))),
         data: (photos) {
           if (photos.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: Text(
-                  'No photos yet.\nTap the camera button to add one.',
+                  context.l10n.photosNoneYet,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -76,7 +77,7 @@ class _PhotoTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gaLabel = photo.gestationalDays != null
-        ? 'Week ${photo.gestationalDays! ~/ 7}'
+        ? context.l10n.photosWeekBadge(photo.gestationalDays! ~/ 7)
         : null;
 
     return GestureDetector(
@@ -134,4 +135,5 @@ class _PhotoTile extends ConsumerWidget {
 }
 
 /// Date subtitle helper shared with the viewer.
-String formatPhotoDate(DateTime utc) => DateFormat.yMMMd().format(utc.toLocal());
+String formatPhotoDate(DateTime utc) =>
+    DateFormat.yMMMd().format(utc.toLocal());

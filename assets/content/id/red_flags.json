@@ -1,0 +1,13 @@
+{
+  "red_flags": [
+    {"key": "heavy_bleeding", "label": "Perdarahan hebat dari vagina", "message": "Perdarahan hebat saat hamil memerlukan penilaian segera. Hubungi tenaga kesehatan Anda sekarang atau pergi ke unit gawat darurat."},
+    {"key": "severe_headache", "label": "Sakit kepala hebat", "message": "Sakit kepala hebat dapat menjadi tanda bahaya. Hubungi tenaga kesehatan Anda sekarang."},
+    {"key": "vision_changes", "label": "Gangguan penglihatan (kabur, kilatan cahaya)", "message": "Gangguan penglihatan dapat menjadi tanda bahaya. Hubungi tenaga kesehatan Anda sekarang."},
+    {"key": "severe_abdominal_pain", "label": "Nyeri perut hebat", "message": "Nyeri perut hebat memerlukan penilaian segera. Hubungi tenaga kesehatan Anda sekarang atau pergi ke unit gawat darurat."},
+    {"key": "fluid_leaking", "label": "Cairan merembes atau menyembur dari vagina", "message": "Ini bisa berarti ketuban Anda pecah. Hubungi tenaga kesehatan Anda sekarang."},
+    {"key": "fever", "label": "Demam 38,0 °C atau lebih", "message": "Demam saat hamil perlu dinilai. Hubungi tenaga kesehatan Anda hari ini."},
+    {"key": "calf_pain", "label": "Nyeri atau bengkak pada betis satu sisi", "message": "Ini dapat menjadi tanda penggumpalan darah. Segera cari pertolongan medis darurat."},
+    {"key": "fainting", "label": "Pingsan atau pusing berat", "message": "Hubungi tenaga kesehatan Anda sekarang atau pergi ke unit gawat darurat."},
+    {"key": "persistent_vomiting", "label": "Tidak bisa menahan cairan selama 24 jam", "message": "Anda mungkin memerlukan penanganan dehidrasi. Hubungi tenaga kesehatan Anda hari ini."}
+  ]
+}

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n.dart';
+
 class DisclaimerFooter extends StatelessWidget {
   const DisclaimerFooter({super.key});
 
@@ -8,8 +10,7 @@ class DisclaimerFooter extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Text(
-        'This app supports but never replaces medical care. '
-        'Always follow your healthcare provider\'s advice.',
+        context.l10n.disclaimerText,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),

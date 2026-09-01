@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'l10n.dart';
 import '../features/more/more_screen.dart';
 import '../features/pregnancy/home/home_screen.dart';
 import '../features/pregnancy/learn/danger_signs_screen.dart';
@@ -231,26 +232,26 @@ class AppShell extends StatelessWidget {
           index,
           initialLocation: index == navigationShell.currentIndex,
         ),
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: context.l10n.homeTitle,
           ),
           NavigationDestination(
             icon: Icon(Icons.edit_outlined),
             selectedIcon: Icon(Icons.edit),
-            label: 'Track',
+            label: context.l10n.trackTitle,
           ),
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
             selectedIcon: Icon(Icons.menu_book),
-            label: 'Learn',
+            label: context.l10n.learnTitle,
           ),
           NavigationDestination(
             icon: Icon(Icons.more_horiz),
             selectedIcon: Icon(Icons.more_horiz),
-            label: 'More',
+            label: context.l10n.moreTitle,
           ),
         ],
       ),

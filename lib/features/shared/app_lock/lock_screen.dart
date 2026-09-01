@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n.dart';
 import 'app_lock_notifier.dart';
 
 class LockScreen extends ConsumerStatefulWidget {
@@ -40,7 +41,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
           .verifyPin(_pin);
       if (!ok && mounted) {
         setState(() {
-          _error = 'Incorrect PIN';
+          _error = 'pin';
           _pin = '';
         });
       }
@@ -67,14 +68,14 @@ class _LockScreenState extends ConsumerState<LockScreen> {
           children: [
             const Icon(Icons.lock_outline, size: 48),
             const SizedBox(height: 16),
-            Text('Enter PIN', style: theme.textTheme.titleMedium),
+            Text(context.l10n.lockEnterPin, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Text('\u2022' * _pin.length, style: theme.textTheme.headlineSmall),
             if (_error.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  _error,
+                  context.l10n.pinIncorrect,
                   style: TextStyle(color: theme.colorScheme.error),
                 ),
               ),
@@ -91,7 +92,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
             TextButton.icon(
               onPressed: _tryBiometric,
               icon: const Icon(Icons.fingerprint),
-              label: const Text('Use fingerprint'),
+              label: Text(context.l10n.lockUseFingerprint),
             ),
           ],
         ),

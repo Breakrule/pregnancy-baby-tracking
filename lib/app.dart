@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/l10n.dart';
 import 'core/router.dart';
 import 'core/theme.dart';
 import 'data/providers.dart';
 import 'features/shared/app_lock/lock_gate.dart';
+import 'features/shared/settings/locale_provider.dart';
 import 'features/shared/splash/app_bootstrap.dart';
 import 'features/shared/splash/pending_route_provider.dart';
 import 'features/shared/splash/splash_screen.dart';
@@ -74,6 +77,14 @@ class _ReadyAppState extends ConsumerState<_ReadyApp> {
         title: 'Nurture',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.pregnancy(),
+        locale: ref.watch(localeProvider),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         routerConfig: ref.watch(routerProvider),
       ),
     );

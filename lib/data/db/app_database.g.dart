@@ -879,6 +879,16 @@ class $SettingsRowsTable extends SettingsRows
         requiredDuringInsert: false,
         defaultValue: const Constant('mgdl'),
       ).withConverter<GlucoseUnit>($SettingsRowsTable.$converterglucoseUnit);
+  static const VerificationMeta _localeMeta = const VerificationMeta('locale');
+  @override
+  late final GeneratedColumn<String> locale = GeneratedColumn<String>(
+    'locale',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('en'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -888,6 +898,7 @@ class $SettingsRowsTable extends SettingsRows
     weightUnit,
     lengthUnit,
     glucoseUnit,
+    locale,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -923,6 +934,12 @@ class $SettingsRowsTable extends SettingsRows
       context.handle(
         _pinSaltMeta,
         pinSalt.isAcceptableOrUnknown(data['pin_salt']!, _pinSaltMeta),
+      );
+    }
+    if (data.containsKey('locale')) {
+      context.handle(
+        _localeMeta,
+        locale.isAcceptableOrUnknown(data['locale']!, _localeMeta),
       );
     }
     return context;
@@ -968,6 +985,10 @@ class $SettingsRowsTable extends SettingsRows
           data['${effectivePrefix}glucose_unit'],
         )!,
       ),
+      locale: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}locale'],
+      )!,
     );
   }
 
@@ -992,6 +1013,9 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
   final WeightUnit weightUnit;
   final LengthUnit lengthUnit;
   final GlucoseUnit glucoseUnit;
+
+  /// BCP-47 language tag for the UI ('en', 'id').
+  final String locale;
   const SettingsRow({
     required this.id,
     required this.lockEnabled,
@@ -1000,6 +1024,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     required this.weightUnit,
     required this.lengthUnit,
     required this.glucoseUnit,
+    required this.locale,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1027,6 +1052,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
         $SettingsRowsTable.$converterglucoseUnit.toSql(glucoseUnit),
       );
     }
+    map['locale'] = Variable<String>(locale);
     return map;
   }
 
@@ -1043,6 +1069,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       weightUnit: Value(weightUnit),
       lengthUnit: Value(lengthUnit),
       glucoseUnit: Value(glucoseUnit),
+      locale: Value(locale),
     );
   }
 
@@ -1065,6 +1092,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       glucoseUnit: $SettingsRowsTable.$converterglucoseUnit.fromJson(
         serializer.fromJson<String>(json['glucoseUnit']),
       ),
+      locale: serializer.fromJson<String>(json['locale']),
     );
   }
   @override
@@ -1084,6 +1112,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       'glucoseUnit': serializer.toJson<String>(
         $SettingsRowsTable.$converterglucoseUnit.toJson(glucoseUnit),
       ),
+      'locale': serializer.toJson<String>(locale),
     };
   }
 
@@ -1095,6 +1124,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     WeightUnit? weightUnit,
     LengthUnit? lengthUnit,
     GlucoseUnit? glucoseUnit,
+    String? locale,
   }) => SettingsRow(
     id: id ?? this.id,
     lockEnabled: lockEnabled ?? this.lockEnabled,
@@ -1103,6 +1133,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     weightUnit: weightUnit ?? this.weightUnit,
     lengthUnit: lengthUnit ?? this.lengthUnit,
     glucoseUnit: glucoseUnit ?? this.glucoseUnit,
+    locale: locale ?? this.locale,
   );
   SettingsRow copyWithCompanion(SettingsRowsCompanion data) {
     return SettingsRow(
@@ -1121,6 +1152,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       glucoseUnit: data.glucoseUnit.present
           ? data.glucoseUnit.value
           : this.glucoseUnit,
+      locale: data.locale.present ? data.locale.value : this.locale,
     );
   }
 
@@ -1133,7 +1165,8 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
           ..write('pinSalt: $pinSalt, ')
           ..write('weightUnit: $weightUnit, ')
           ..write('lengthUnit: $lengthUnit, ')
-          ..write('glucoseUnit: $glucoseUnit')
+          ..write('glucoseUnit: $glucoseUnit, ')
+          ..write('locale: $locale')
           ..write(')'))
         .toString();
   }
@@ -1147,6 +1180,7 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     weightUnit,
     lengthUnit,
     glucoseUnit,
+    locale,
   );
   @override
   bool operator ==(Object other) =>
@@ -1158,7 +1192,8 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
           other.pinSalt == this.pinSalt &&
           other.weightUnit == this.weightUnit &&
           other.lengthUnit == this.lengthUnit &&
-          other.glucoseUnit == this.glucoseUnit);
+          other.glucoseUnit == this.glucoseUnit &&
+          other.locale == this.locale);
 }
 
 class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
@@ -1169,6 +1204,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
   final Value<WeightUnit> weightUnit;
   final Value<LengthUnit> lengthUnit;
   final Value<GlucoseUnit> glucoseUnit;
+  final Value<String> locale;
   const SettingsRowsCompanion({
     this.id = const Value.absent(),
     this.lockEnabled = const Value.absent(),
@@ -1177,6 +1213,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
     this.weightUnit = const Value.absent(),
     this.lengthUnit = const Value.absent(),
     this.glucoseUnit = const Value.absent(),
+    this.locale = const Value.absent(),
   });
   SettingsRowsCompanion.insert({
     this.id = const Value.absent(),
@@ -1186,6 +1223,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
     this.weightUnit = const Value.absent(),
     this.lengthUnit = const Value.absent(),
     this.glucoseUnit = const Value.absent(),
+    this.locale = const Value.absent(),
   });
   static Insertable<SettingsRow> custom({
     Expression<int>? id,
@@ -1195,6 +1233,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
     Expression<String>? weightUnit,
     Expression<String>? lengthUnit,
     Expression<String>? glucoseUnit,
+    Expression<String>? locale,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1204,6 +1243,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
       if (weightUnit != null) 'weight_unit': weightUnit,
       if (lengthUnit != null) 'length_unit': lengthUnit,
       if (glucoseUnit != null) 'glucose_unit': glucoseUnit,
+      if (locale != null) 'locale': locale,
     });
   }
 
@@ -1215,6 +1255,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
     Value<WeightUnit>? weightUnit,
     Value<LengthUnit>? lengthUnit,
     Value<GlucoseUnit>? glucoseUnit,
+    Value<String>? locale,
   }) {
     return SettingsRowsCompanion(
       id: id ?? this.id,
@@ -1224,6 +1265,7 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
       weightUnit: weightUnit ?? this.weightUnit,
       lengthUnit: lengthUnit ?? this.lengthUnit,
       glucoseUnit: glucoseUnit ?? this.glucoseUnit,
+      locale: locale ?? this.locale,
     );
   }
 
@@ -1257,6 +1299,9 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
         $SettingsRowsTable.$converterglucoseUnit.toSql(glucoseUnit.value),
       );
     }
+    if (locale.present) {
+      map['locale'] = Variable<String>(locale.value);
+    }
     return map;
   }
 
@@ -1269,7 +1314,8 @@ class SettingsRowsCompanion extends UpdateCompanion<SettingsRow> {
           ..write('pinSalt: $pinSalt, ')
           ..write('weightUnit: $weightUnit, ')
           ..write('lengthUnit: $lengthUnit, ')
-          ..write('glucoseUnit: $glucoseUnit')
+          ..write('glucoseUnit: $glucoseUnit, ')
+          ..write('locale: $locale')
           ..write(')'))
         .toString();
   }
@@ -4007,6 +4053,7 @@ typedef $$SettingsRowsTableCreateCompanionBuilder =
       Value<WeightUnit> weightUnit,
       Value<LengthUnit> lengthUnit,
       Value<GlucoseUnit> glucoseUnit,
+      Value<String> locale,
     });
 typedef $$SettingsRowsTableUpdateCompanionBuilder =
     SettingsRowsCompanion Function({
@@ -4017,6 +4064,7 @@ typedef $$SettingsRowsTableUpdateCompanionBuilder =
       Value<WeightUnit> weightUnit,
       Value<LengthUnit> lengthUnit,
       Value<GlucoseUnit> glucoseUnit,
+      Value<String> locale,
     });
 
 class $$SettingsRowsTableFilterComposer
@@ -4065,6 +4113,11 @@ class $$SettingsRowsTableFilterComposer
     column: $table.glucoseUnit,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
+
+  ColumnFilters<String> get locale => $composableBuilder(
+    column: $table.locale,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$SettingsRowsTableOrderingComposer
@@ -4110,6 +4163,11 @@ class $$SettingsRowsTableOrderingComposer
     column: $table.glucoseUnit,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get locale => $composableBuilder(
+    column: $table.locale,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SettingsRowsTableAnnotationComposer
@@ -4152,6 +4210,9 @@ class $$SettingsRowsTableAnnotationComposer
         column: $table.glucoseUnit,
         builder: (column) => column,
       );
+
+  GeneratedColumn<String> get locale =>
+      $composableBuilder(column: $table.locale, builder: (column) => column);
 }
 
 class $$SettingsRowsTableTableManager
@@ -4192,6 +4253,7 @@ class $$SettingsRowsTableTableManager
                 Value<WeightUnit> weightUnit = const Value.absent(),
                 Value<LengthUnit> lengthUnit = const Value.absent(),
                 Value<GlucoseUnit> glucoseUnit = const Value.absent(),
+                Value<String> locale = const Value.absent(),
               }) => SettingsRowsCompanion(
                 id: id,
                 lockEnabled: lockEnabled,
@@ -4200,6 +4262,7 @@ class $$SettingsRowsTableTableManager
                 weightUnit: weightUnit,
                 lengthUnit: lengthUnit,
                 glucoseUnit: glucoseUnit,
+                locale: locale,
               ),
           createCompanionCallback:
               ({
@@ -4210,6 +4273,7 @@ class $$SettingsRowsTableTableManager
                 Value<WeightUnit> weightUnit = const Value.absent(),
                 Value<LengthUnit> lengthUnit = const Value.absent(),
                 Value<GlucoseUnit> glucoseUnit = const Value.absent(),
+                Value<String> locale = const Value.absent(),
               }) => SettingsRowsCompanion.insert(
                 id: id,
                 lockEnabled: lockEnabled,
@@ -4218,6 +4282,7 @@ class $$SettingsRowsTableTableManager
                 weightUnit: weightUnit,
                 lengthUnit: lengthUnit,
                 glucoseUnit: glucoseUnit,
+                locale: locale,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

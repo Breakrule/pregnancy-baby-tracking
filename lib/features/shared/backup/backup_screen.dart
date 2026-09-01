@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../core/l10n.dart';
 import '../../../data/backup/backup_service.dart';
 import '../../../data/providers.dart';
 import '../app_lock/app_lock_notifier.dart';
@@ -50,7 +51,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 obscureText: true,
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: 'Passphrase',
+                  labelText: context.l10n.backupPassphraseLabel,
                   errorText: error,
                 ),
               ),
@@ -59,8 +60,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                   key: const Key('passphrase-confirm-field'),
                   controller: second,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Repeat passphrase',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.backupRepeatPassphraseLabel,
                   ),
                 ),
             ],
@@ -68,22 +69,26 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.commonCancel),
             ),
             FilledButton(
               onPressed: () {
                 final passphrase = first.text;
                 if (passphrase.length < 8) {
-                  setDialogState(() => error = 'Use at least 8 characters');
+                  setDialogState(
+                    () => error = context.l10n.backupPassphraseTooShort,
+                  );
                   return;
                 }
                 if (confirm && passphrase != second.text) {
-                  setDialogState(() => error = 'Passphrases do not match');
+                  setDialogState(
+                    () => error = context.l10n.backupPassphrasesMismatch,
+                  );
                   return;
                 }
                 Navigator.pop(ctx, passphrase);
               },
-              child: const Text('OK'),
+              child: Text(context.l10n.commonOk),
             ),
           ],
         ),
@@ -97,10 +102,13 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Future<void> _export() async {
     if (_busy) return;
     final passphrase = await _passphraseDialog(
-      title: 'Choose a backup passphrase',
+      title: context.l10n.backupChoosePassphraseTitle,
       confirm: true,
     );
     if (passphrase == null || !mounted) return;
+
+    // Capture before the awaits below (context use across async gaps).
+    final saveDialogTitle = context.l10n.backupSaveDialogTitle;
 
     setState(() => _busy = true);
     try {
@@ -115,15 +123,15 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           '${now.month.toString().padLeft(2, '0')}'
           '${now.day.toString().padLeft(2, '0')}';
       final path = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save backup',
+        dialogTitle: saveDialogTitle,
         fileName: 'nurture-backup-$stamp.nbk',
       );
       if (path == null) return; // user cancelled
 
       await File(path).writeAsBytes(bytes);
-      if (mounted) _snack('Backup saved: ${p.basename(path)}');
+      if (mounted) _snack(context.l10n.backupSaved(p.basename(path)));
     } on Object catch (e) {
-      if (mounted) _snack('Export failed: $e', error: true);
+      if (mounted) _snack(context.l10n.backupExportFailed('$e'), error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -134,19 +142,16 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Restore from backup'),
-        content: const Text(
-          'This replaces ALL current data with the contents of the '
-          'backup file. This cannot be undone.',
-        ),
+        title: Text(ctx.l10n.backupRestore),
+        content: Text(ctx.l10n.backupRestoreConfirmText),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Replace all data'),
+            child: Text(ctx.l10n.backupReplaceAllData),
           ),
         ],
       ),
@@ -158,7 +163,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     if (path == null || !mounted) return;
 
     final passphrase = await _passphraseDialog(
-      title: 'Enter backup passphrase',
+      title: context.l10n.backupEnterPassphraseTitle,
       confirm: false,
     );
     if (passphrase == null || !mounted) return;
@@ -175,11 +180,11 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       ref.invalidate(settingsProvider);
       await ref.read(appLockNotifierProvider.notifier).syncFromSettings();
 
-      if (mounted) _snack('Backup restored');
+      if (mounted) _snack(context.l10n.backupRestored);
     } on BackupException catch (e) {
       if (mounted) _snack(e.message, error: true);
     } on Object catch (e) {
-      if (mounted) _snack('Restore failed: $e', error: true);
+      if (mounted) _snack(context.l10n.backupRestoreFailed('$e'), error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -188,30 +193,26 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Backup & restore')),
+      appBar: AppBar(title: Text(context.l10n.backupScreenTitle)),
       body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Backups are encrypted with your passphrase and saved to a '
-              'file you choose. Nothing ever leaves your device '
-              'automatically.',
-            ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(context.l10n.backupIntro),
           ),
           ListTile(
             key: const Key('export-backup-tile'),
             leading: const Icon(Icons.file_upload_outlined),
-            title: const Text('Export backup'),
-            subtitle: const Text('Save an encrypted copy of all data'),
+            title: Text(context.l10n.backupExport),
+            subtitle: Text(context.l10n.backupExportSubtitle),
             enabled: !_busy,
             onTap: _export,
           ),
           ListTile(
             key: const Key('restore-backup-tile'),
             leading: const Icon(Icons.file_download_outlined),
-            title: const Text('Restore from backup'),
-            subtitle: const Text('Replace all data from a backup file'),
+            title: Text(context.l10n.backupRestore),
+            subtitle: Text(context.l10n.backupRestoreSubtitle),
             enabled: !_busy,
             onTap: _restore,
           ),
