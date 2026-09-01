@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/motion/pressable.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/tables.dart';
 import '../../../data/providers.dart';
@@ -24,9 +25,11 @@ class AppointmentsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Appointments')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/track/appointments/new'),
-        child: const Icon(Icons.add),
+      floatingActionButton: PressableScale(
+        child: FloatingActionButton(
+          onPressed: () => context.push('/track/appointments/new'),
+          child: const Icon(Icons.add),
+        ),
       ),
       body: upcomingAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

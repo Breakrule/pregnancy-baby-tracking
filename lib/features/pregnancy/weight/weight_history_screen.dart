@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/motion/animated_item_list.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 import '../../../domain/gestational/gestational_calculator.dart';
@@ -75,16 +76,14 @@ class WeightHistoryScreen extends ConsumerWidget {
           ),
         ),
         const Divider(height: 1),
-        // Entries list
+        // Entries list — newest first, insert/remove animated.
         Expanded(
-          child: ListView.builder(
+          child: AnimatedItemStream<WeightEntry>(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: entries.length,
-            // Show newest first in the list (entries are ascending from repo)
-            itemBuilder: (context, index) {
-              final entry = entries[entries.length - 1 - index];
-              return _buildEntryTile(context, ref, entry);
-            },
+            items: entries.reversed.toList(),
+            itemId: (entry) => entry.id,
+            itemBuilder: (context, entry) =>
+                _buildEntryTile(context, ref, entry),
           ),
         ),
       ],

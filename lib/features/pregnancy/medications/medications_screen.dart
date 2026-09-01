@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/motion/pressable.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 
@@ -26,9 +27,11 @@ class MedicationsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Medications')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/track/medications/new'),
-        child: const Icon(Icons.add),
+      floatingActionButton: PressableScale(
+        child: FloatingActionButton(
+          onPressed: () => context.push('/track/medications/new'),
+          child: const Icon(Icons.add),
+        ),
       ),
       body: medsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

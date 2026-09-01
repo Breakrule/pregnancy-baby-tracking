@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/motion/animated_item_list.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/providers.dart';
 
@@ -39,12 +40,14 @@ class SymptomHistoryScreen extends ConsumerWidget {
       grouped.putIfAbsent(key, () => []).add(s);
     }
 
-    return ListView.builder(
+    // Date groups animate in/out as new days appear or become empty.
+    return AnimatedItemStream<MapEntry<String, List<Symptom>>>(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: grouped.length,
-      itemBuilder: (context, index) {
-        final dateLabel = grouped.keys.elementAt(index);
-        final items = grouped[dateLabel]!;
+      items: grouped.entries.toList(),
+      itemId: (group) => group.key,
+      itemBuilder: (context, group) {
+        final dateLabel = group.key;
+        final items = group.value;
         return KeyedSubtree(
           key: ValueKey(dateLabel),
           child: Column(
