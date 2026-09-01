@@ -9,6 +9,7 @@ import '../content/models.dart';
 import '../content/providers.dart';
 import '../domain/alerts/alert_engine.dart';
 import '../domain/alerts/symptom_rules.dart';
+import '../features/shared/photos/directory_photo_store.dart';
 import '../features/shared/photos/photo_service.dart';
 import '../features/shared/reminders/reminder_service.dart';
 import 'backup/backup_service.dart';
@@ -110,23 +111,30 @@ final photoRepositoryProvider = Provider<PhotoRepository>((ref) {
 
 /// Photo files live in app-private storage (not Documents), so the media
 /// scanner and other apps never see them.
+final photoStorageDirProvider = Provider<Future<Directory> Function()>((ref) {
+  return () async {
+    final dir = await getApplicationSupportDirectory();
+    return Directory(p.join(dir.path, 'photos'));
+  };
+});
+
 final photoServiceProvider = Provider<PhotoService>((ref) {
-  return PhotoService(
-    ImagePicker(),
-    () async {
-      final dir = await getApplicationSupportDirectory();
-      return Directory(p.join(dir.path, 'photos'));
-    },
-  );
+  return PhotoService(ImagePicker(), ref.watch(photoStorageDirProvider));
 });
 
 /// Photos of one category, oldest first.
-final photosProvider =
-    StreamProvider.family<List<Photo>, PhotoCategory>((ref, category) {
-      return ref.watch(photoRepositoryProvider).watchByCategory(category);
-    });
+final photosProvider = StreamProvider.family<List<Photo>, PhotoCategory>((
+  ref,
+  category,
+) {
+  return ref.watch(photoRepositoryProvider).watchByCategory(category);
+});
 
-final backupServiceProvider = Provider<BackupService>((ref) => BackupService());
+final backupServiceProvider = Provider<BackupService>(
+  (ref) => BackupService(
+    photoStore: DirectoryPhotoStore(ref.watch(photoStorageDirProvider)),
+  ),
+);
 
 /// Open appointments from now onward, soonest first.
 final upcomingAppointmentsProvider = StreamProvider<List<Appointment>>((ref) {
