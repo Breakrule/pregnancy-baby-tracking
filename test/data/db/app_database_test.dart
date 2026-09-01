@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart' show Value, MigrationStrategy, QueryExecutor;
+import 'package:drift/drift.dart' show Value, MigrationStrategy;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nurture/data/db/app_database.dart';
@@ -10,7 +10,7 @@ import 'package:path/path.dart' as p;
 /// Simulates the app as shipped in Phase 0: schema v1 without the photos
 /// table. Used to verify the v1 → v2 migration path.
 class _V1Database extends AppDatabase {
-  _V1Database(QueryExecutor executor) : super(executor);
+  _V1Database(super.executor);
 
   @override
   int get schemaVersion => 1;

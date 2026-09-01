@@ -19,6 +19,9 @@ import '../features/pregnancy/appointments/appointments_screen.dart';
 import '../features/pregnancy/medications/medication_edit_screen.dart';
 import '../features/pregnancy/medications/medications_screen.dart';
 import '../features/shared/backup/backup_screen.dart';
+import '../features/shared/photos/gallery_screen.dart';
+import '../features/shared/photos/photo_add_sheet.dart';
+import '../features/shared/photos/photo_viewer_screen.dart';
 import '../features/shared/settings/settings_screen.dart';
 
 /// Notifies GoRouter to re-evaluate redirects when the active pregnancy
@@ -64,6 +67,41 @@ GoRouter buildRouter({
       GoRoute(
         path: '/setup',
         builder: (context, state) => const SetupWizardScreen(),
+      ),
+      GoRoute(
+        path: '/photos/:category',
+        redirect: (context, state) {
+          final category = photoCategoryFromPath(
+            state.pathParameters['category'] ?? '',
+          );
+          return category == null ? '/home' : null;
+        },
+        builder: (context, state) {
+          final category = photoCategoryFromPath(
+            state.pathParameters['category']!,
+          )!;
+          return GalleryScreen(category: category);
+        },
+        routes: [
+          GoRoute(
+            path: ':id',
+            redirect: (context, state) {
+              if (int.tryParse(state.pathParameters['id'] ?? '') == null) {
+                return '/photos/${state.pathParameters['category']}';
+              }
+              return null;
+            },
+            builder: (context, state) {
+              final category = photoCategoryFromPath(
+                state.pathParameters['category']!,
+              )!;
+              return PhotoViewerScreen(
+                category: category,
+                photoId: int.parse(state.pathParameters['id']!),
+              );
+            },
+          ),
+        ],
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

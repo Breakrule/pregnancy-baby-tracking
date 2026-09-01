@@ -165,7 +165,20 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
 
-          // 4. Red-flags shortcut
+          // 4. Belly-photos shortcut
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: PressableScale(
+              child: FilledButton.tonalIcon(
+                key: const Key('home-belly-photos-button'),
+                onPressed: () => context.go('/photos/belly'),
+                icon: const Icon(Icons.photo_camera_outlined),
+                label: const Text('Belly photos'),
+              ),
+            ),
+          ),
+
+          // 5. Red-flags shortcut
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: PressableScale(

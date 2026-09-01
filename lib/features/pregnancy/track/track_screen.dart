@@ -42,6 +42,22 @@ class TrackScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go('/track/medications'),
           ),
+          ListTile(
+            key: const Key('track-belly-photos-tile'),
+            leading: const Icon(Icons.photo_camera),
+            title: const Text('Belly photos'),
+            subtitle: const Text('Your bump, week by week'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/photos/belly'),
+          ),
+          ListTile(
+            key: const Key('track-ultrasounds-tile'),
+            leading: const Icon(Icons.monitor_heart),
+            title: const Text('Ultrasounds'),
+            subtitle: const Text('Scan photos with dates'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/photos/ultrasounds'),
+          ),
         ],
       ),
     );
