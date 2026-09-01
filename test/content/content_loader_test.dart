@@ -43,10 +43,19 @@ void main() {
     final id = await ContentLoader.load('id');
 
     // Same weeks, same structure.
-    expect(id.weeks.map((w) => w.week).toList(), bundle.weeks.map((w) => w.week).toList());
+    expect(
+      id.weeks.map((w) => w.week).toList(),
+      bundle.weeks.map((w) => w.week).toList(),
+    );
     for (var i = 0; i < id.weeks.length; i++) {
-      expect(id.weeks[i].development.length, bundle.weeks[i].development.length);
-      expect(id.weeks[i].bodyChanges.length, bundle.weeks[i].bodyChanges.length);
+      expect(
+        id.weeks[i].development.length,
+        bundle.weeks[i].development.length,
+      );
+      expect(
+        id.weeks[i].bodyChanges.length,
+        bundle.weeks[i].bodyChanges.length,
+      );
       expect(id.weeks[i].tips.length, bundle.weeks[i].tips.length);
       expect(id.weeks[i].checklist.length, bundle.weeks[i].checklist.length);
       expect(id.weeks[i].sizeCm, bundle.weeks[i].sizeCm);

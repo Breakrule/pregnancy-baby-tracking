@@ -8,6 +8,8 @@ import 'package:nurture/data/db/tables.dart';
 import 'package:nurture/data/providers.dart';
 import 'package:nurture/features/shared/app_lock/auth_service.dart';
 
+import '../test_app.dart';
+
 void main() {
   testWidgets(
     'malformed /learn/week/:w redirects to /learn instead of crashing',
@@ -37,7 +39,10 @@ void main() {
               AlwaysAllowAuthService(available: false),
             ),
           ],
-          child: MaterialApp.router(routerConfig: router),
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: testLocalizationDelegates,
+          ),
         ),
       );
       await tester.pumpAndSettle();

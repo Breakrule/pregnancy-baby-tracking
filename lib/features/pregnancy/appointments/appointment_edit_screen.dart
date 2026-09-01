@@ -101,11 +101,7 @@ class _AppointmentEditScreenState extends ConsumerState<AppointmentEditScreen> {
 
       await ref
           .read(reminderServiceProvider)
-          .scheduleAppointment(
-            appointmentId: id,
-            type: typeLabel,
-            at: atUtc,
-          );
+          .scheduleAppointment(appointmentId: id, type: typeLabel, at: atUtc);
 
       if (mounted) Navigator.of(context).pop();
     } finally {

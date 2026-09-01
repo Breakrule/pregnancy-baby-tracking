@@ -9,6 +9,8 @@ import 'package:nurture/data/db/tables.dart';
 import 'package:nurture/data/providers.dart';
 import 'package:nurture/features/shared/app_lock/auth_service.dart';
 
+import '../../../test_app.dart';
+
 void main() {
   testWidgets('setup redirect: no pregnancy sends user to /setup', (
     tester,
@@ -79,6 +81,8 @@ class RouterApp extends StatelessWidget {
   final GoRouter router;
 
   @override
-  Widget build(BuildContext context) =>
-      MaterialApp.router(routerConfig: router);
+  Widget build(BuildContext context) => MaterialApp.router(
+    routerConfig: router,
+    localizationsDelegates: testLocalizationDelegates,
+  );
 }

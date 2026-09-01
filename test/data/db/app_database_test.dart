@@ -8,7 +8,8 @@ import 'package:nurture/data/db/tables.dart';
 import 'package:path/path.dart' as p;
 
 /// Simulates the app as shipped in Phase 0: schema v1 without the photos
-/// table. Used to verify the v1 → v2 migration path.
+/// table and without the settings `locale` column. Used to verify the
+/// migration path.
 class _V1Database extends AppDatabase {
   _V1Database(super.executor);
 
@@ -20,6 +21,22 @@ class _V1Database extends AppDatabase {
     onCreate: (m) async {
       for (final table in allTables) {
         if (identical(table, photos)) continue; // didn't exist in v1
+        if (identical(table, settingsRows)) {
+          // v1 settings had no locale column.
+          await m.database.customStatement('''
+            CREATE TABLE settings_rows (
+              id INTEGER NOT NULL,
+              lock_enabled INTEGER NOT NULL DEFAULT 0,
+              pin_hash TEXT,
+              pin_salt TEXT,
+              weight_unit TEXT NOT NULL DEFAULT 'kg',
+              length_unit TEXT NOT NULL DEFAULT 'cm',
+              glucose_unit TEXT NOT NULL DEFAULT 'mgdl',
+              PRIMARY KEY (id)
+            );
+          ''');
+          continue;
+        }
         await m.createTable(table);
       }
     },

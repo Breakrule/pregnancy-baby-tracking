@@ -10,6 +10,8 @@ import 'package:nurture/features/shared/app_lock/auth_service.dart';
 import 'package:nurture/features/shared/app_lock/lock_gate.dart';
 import 'package:nurture/features/shared/app_lock/pin_hash.dart';
 
+import '../../../test_app.dart';
+
 void main() {
   Future<AppDatabase> lockedDb() async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -41,7 +43,8 @@ void main() {
             AlwaysAllowAuthService(available: false),
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
+          localizationsDelegates: testLocalizationDelegates,
           home: LockGate(child: Text('unlocked content')),
         ),
       ),
@@ -85,7 +88,8 @@ void main() {
             AlwaysAllowAuthService(available: false),
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
+          localizationsDelegates: testLocalizationDelegates,
           home: LockGate(child: Text('unlocked content')),
         ),
       ),

@@ -15,36 +15,37 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('add and watchByCategory only emit that category, takenAt ascending', () async {
-    await repo.add(
-      category: PhotoCategory.belly,
-      takenAt: DateTime.utc(2026, 3, 2),
-      fileName: 'b.jpg',
-      gestationalDays: 70,
-    );
-    await repo.add(
-      category: PhotoCategory.belly,
-      takenAt: DateTime.utc(2026, 2, 1),
-      fileName: 'a.jpg',
-      gestationalDays: 35,
-    );
-    await repo.add(
-      category: PhotoCategory.ultrasound,
-      takenAt: DateTime.utc(2026, 2, 15),
-      fileName: 'u.jpg',
-      gestationalDays: 49,
-    );
+  test(
+    'add and watchByCategory only emit that category, takenAt ascending',
+    () async {
+      await repo.add(
+        category: PhotoCategory.belly,
+        takenAt: DateTime.utc(2026, 3, 2),
+        fileName: 'b.jpg',
+        gestationalDays: 70,
+      );
+      await repo.add(
+        category: PhotoCategory.belly,
+        takenAt: DateTime.utc(2026, 2, 1),
+        fileName: 'a.jpg',
+        gestationalDays: 35,
+      );
+      await repo.add(
+        category: PhotoCategory.ultrasound,
+        takenAt: DateTime.utc(2026, 2, 15),
+        fileName: 'u.jpg',
+        gestationalDays: 49,
+      );
 
-    final belly = await repo
-        .watchByCategory(PhotoCategory.belly)
-        .first;
-    expect(belly.map((p) => p.fileName), ['a.jpg', 'b.jpg']);
+      final belly = await repo.watchByCategory(PhotoCategory.belly).first;
+      expect(belly.map((p) => p.fileName), ['a.jpg', 'b.jpg']);
 
-    final ultrasound = await repo
-        .watchByCategory(PhotoCategory.ultrasound)
-        .first;
-    expect(ultrasound.single.fileName, 'u.jpg');
-  });
+      final ultrasound = await repo
+          .watchByCategory(PhotoCategory.ultrasound)
+          .first;
+      expect(ultrasound.single.fileName, 'u.jpg');
+    },
+  );
 
   test('delete removes the row', () async {
     final id = await repo.add(
@@ -68,8 +69,8 @@ void main() {
       notes: '20-week anatomy scan',
     );
 
-    final row = (await repo.watchByCategory(PhotoCategory.ultrasound).first)
-        .single;
+    final row =
+        (await repo.watchByCategory(PhotoCategory.ultrasound).first).single;
     expect(row.gestationalDays, 84);
     expect(row.notes, '20-week anatomy scan');
   });

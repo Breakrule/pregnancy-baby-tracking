@@ -7,6 +7,8 @@ import 'package:nurture/data/providers.dart';
 import 'package:nurture/data/repositories/appointment_repository.dart';
 import 'package:nurture/features/pregnancy/appointments/appointments_screen.dart';
 
+import '../../../test_app.dart';
+
 void main() {
   testWidgets('upcoming and past appointments are partitioned', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -27,7 +29,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: AppointmentsScreen()),
+        child: localizedApp(const AppointmentsScreen()),
       ),
     );
     await tester.pumpAndSettle();

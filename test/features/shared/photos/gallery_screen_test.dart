@@ -15,6 +15,8 @@ import 'package:nurture/features/shared/photos/gallery_screen.dart';
 import 'package:nurture/features/shared/photos/photo_service.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../test_app.dart';
+
 class _FakeImagePicker extends ImagePicker {
   _FakeImagePicker(this.fileToReturn);
 
@@ -40,6 +42,25 @@ Uint8List _solidJpeg(int width, int height) {
   return Uint8List.fromList(img.encodeJpg(image, quality: 90));
 }
 
+/// Capture seam for the flow test: writes real (small) files synchronously
+/// instead of running isolate compression, which does not play well with
+/// FakeAsync. Compression itself is covered in photo_service_test.dart.
+class _InstantPhotoService extends PhotoService {
+  _InstantPhotoService(this._dir) : super(ImagePicker(), () async => _dir);
+
+  final Directory _dir;
+
+  @override
+  Future<CapturedPhoto?> capture({required ImageSource source}) async {
+    const name = 'test.jpg';
+    final bytes = _solidJpeg(40, 30);
+    // Sync writes: real async I/O never completes under FakeAsync.
+    File(p.join(_dir.path, name)).writeAsBytesSync(bytes);
+    File(p.join(_dir.path, 'test_thumb.jpg')).writeAsBytesSync(bytes);
+    return const CapturedPhoto(fileName: name, sizeBytes: 3);
+  }
+}
+
 void main() {
   late AppDatabase db;
   late Directory tempDir;
@@ -51,19 +72,24 @@ void main() {
 
   tearDown(() async {
     await db.close();
-    tempDir.deleteSync(recursive: true);
+    try {
+      tempDir.deleteSync(recursive: true);
+    } catch (_) {
+      // Background isolate work may still hold a file briefly; ignore.
+    }
   });
 
-  Widget wrap(Widget child, {File? pickedFile}) {
+  Widget wrap(Widget child, {File? pickedFile, PhotoService? service}) {
     final storage = Directory(p.join(tempDir.path, 'photos'))..createSync();
     return ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
         photoServiceProvider.overrideWithValue(
-          PhotoService(_FakeImagePicker(pickedFile), () async => storage),
+          service ??
+              PhotoService(_FakeImagePicker(pickedFile), () async => storage),
         ),
       ],
-      child: MaterialApp(home: child),
+      child: localizedApp(child),
     );
   }
 
@@ -75,6 +101,10 @@ void main() {
 
     expect(find.textContaining('No photos yet'), findsOneWidget);
     expect(find.byKey(const Key('photo-add-fab')), findsOneWidget);
+
+    // Tear down the provider tree to cancel Drift stream timers.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
   });
 
   testWidgets('renders a tile per stored photo', (tester) async {
@@ -94,16 +124,19 @@ void main() {
     // Gestational badge + missing-file placeholder.
     expect(find.text('Week 10'), findsOneWidget);
     expect(find.byIcon(Icons.image_not_supported), findsOneWidget);
+
+    // Tear down the provider tree to cancel Drift stream timers.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
   });
 
   testWidgets('add flow: capture, confirm, saves a row', (tester) async {
-    final rawFile = File(p.join(tempDir.path, 'raw.jpg'))
-      ..writeAsBytesSync(_solidJpeg(800, 600));
+    final storageDir = Directory(p.join(tempDir.path, 'photos'));
 
     await tester.pumpWidget(
       wrap(
         const GalleryScreen(category: PhotoCategory.belly),
-        pickedFile: rawFile,
+        service: _InstantPhotoService(storageDir),
       ),
     );
     await tester.pumpAndSettle();
@@ -121,16 +154,17 @@ void main() {
     await tester.tap(find.byKey(const Key('photo-save-button')));
     await tester.pumpAndSettle();
 
-    // Row persisted with the right category.
-    final rows = await PhotoRepository(db)
-        .watchByCategory(PhotoCategory.belly)
-        .first;
+    // Row persisted with the right category (one-shot select: Drift watch
+    // streams do not deliver under FakeAsync).
+    final rows = await db.select(db.photos).get();
     expect(rows, hasLength(1));
     expect(rows.single.category, PhotoCategory.belly);
     // Full-size and thumbnail files exist on disk.
-    final stored = File(
-      p.join(tempDir.path, 'photos', rows.single.fileName),
-    );
+    final stored = File(p.join(tempDir.path, 'photos', rows.single.fileName));
     expect(stored.existsSync(), isTrue);
+
+    // Tear down the provider tree to cancel Drift stream timers.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
   });
 }

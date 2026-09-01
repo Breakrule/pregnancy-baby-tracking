@@ -10,6 +10,8 @@ import 'package:nurture/features/shared/app_lock/auth_service.dart';
 import 'package:nurture/features/shared/app_lock/pin_hash.dart';
 import 'package:nurture/features/shared/settings/settings_screen.dart';
 
+import '../../../test_app.dart';
+
 void main() {
   testWidgets('changing weight unit dropdown persists to DB', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -26,7 +28,7 @@ void main() {
           // that cause "Timer is still pending" errors during test disposal.
           activePregnancyProvider.overrideWith((ref) => Stream.value(null)),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: localizedApp(const SettingsScreen()),
       ),
     );
     await tester.pumpAndSettle();
@@ -62,7 +64,7 @@ void main() {
           ),
           activePregnancyProvider.overrideWith((ref) => Stream.value(null)),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: localizedApp(const SettingsScreen()),
       ),
     );
     await tester.pumpAndSettle();

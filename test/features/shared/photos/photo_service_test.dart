@@ -102,13 +102,19 @@ void main() {
       expect(captured!.sizeBytes, greaterThan(0));
       final full = File(p.join(storage.path, captured.fileName));
       final thumb = File(
-        p.join(storage.path, captured.fileName.replaceFirst('.jpg', '_thumb.jpg')),
+        p.join(
+          storage.path,
+          captured.fileName.replaceFirst('.jpg', '_thumb.jpg'),
+        ),
       );
       expect(full.existsSync(), isTrue);
       expect(thumb.existsSync(), isTrue);
       // Thumbnail is small.
       final thumbDecoded = img.decodeImage(thumb.readAsBytesSync())!;
-      expect(max(thumbDecoded.width, thumbDecoded.height), lessThanOrEqualTo(320));
+      expect(
+        max(thumbDecoded.width, thumbDecoded.height),
+        lessThanOrEqualTo(320),
+      );
       // Storage dir is hidden from the media scanner.
       expect(File(p.join(storage.path, '.nomedia')).existsSync(), isTrue);
     });

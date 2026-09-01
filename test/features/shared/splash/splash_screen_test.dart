@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nurture/features/shared/settings/locale_provider.dart';
 import 'package:nurture/features/shared/splash/splash_screen.dart';
 
 void main() {
+  Widget wrap(Widget child) {
+    return ProviderScope(
+      overrides: [localeProvider.overrideWithValue(const Locale('en'))],
+      child: child,
+    );
+  }
+
   testWidgets('animates the brand mark and shows the app name', (tester) async {
-    await tester.pumpWidget(const SplashScreen());
+    await tester.pumpWidget(wrap(const SplashScreen()));
     // Mid-animation: the tagline has not fully faded in yet.
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Nurture'), findsOneWidget);
@@ -21,7 +30,7 @@ void main() {
         const FakeAccessibilityFeatures(disableAnimations: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
 
-    await tester.pumpWidget(const SplashScreen());
+    await tester.pumpWidget(wrap(const SplashScreen()));
     // A single pump (no settle): everything must already be in its final,
     // fully visible state.
     expect(find.text('Nurture'), findsOneWidget);
